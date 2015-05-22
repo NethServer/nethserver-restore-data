@@ -1,0 +1,92 @@
+html, body {
+	background:#fbfbfb;
+	font-family: 'RobotoDraft', sans-serif !important;
+	margin:0;
+	padding:0;
+}
+#tree {
+	float:left;
+	min-width:319px;
+	border-right:1px solid silver;
+	overflow:auto;
+	padding:0px 0;
+}
+#data {
+	margin-left:320px;
+}
+#jstree_search {
+  	margin: 4px;
+  	padding: 8px;
+  	min-width: 330px;
+}
+#loader {
+	margin-left: 18px;
+	display: none;
+}
+#modeRestore{
+	margin-top: 10px;
+	margin-left: 6px;
+}
+.restoreInput {
+	margin: 6px;
+}
+#files_container {
+	border: 1px solid #DADADA;
+ 	background: white;
+  	overflow-y: auto; 
+  	height: 500px;
+    padding-top: 10px;
+    margin-top: 10px;
+}
+#files {
+	list-style-type: square;
+	padding-left: 20px;
+	margin-left: 10px
+}
+#pathRestore {
+	margin: 10px;
+	color: #474747;
+	display: inline;
+}
+.title {
+	margin: 10px;
+}
+.description {
+	margin: 10px;
+	color: #474747;
+}
+.codeIn {
+	display: inline;
+	font-family: monospace;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	font-size: 14px;
+}
+
+#wrap {
+	margin: 0 auto;
+}
+#header {
+	background: #FBFBFB;
+	width: 100%;
+}
+#nav {
+	top: 55px;
+	background: #FBFBFB;
+	width: 138em;
+	height: 105px;
+}
+#main {
+	float: right;
+	width: 450px;
+	padding: 15px;
+	font-size: 14px;
+	padding-right: 4px;
+	margin-top: -14px;
+}
+#sidebar {
+	float: left;
+	padding: 10px;
+	font-size: 14px;
+	margin-top: -14px;
+}
