@@ -19,6 +19,7 @@ $page = '<div id="wrap">
 		      </div></div>
 		      '.$view->buttonList($view::BUTTON_HELP).'
 		    <div id="sidebar">
+		      <p class="par-string" >'.$T('RestoreData_String_restore').'</p>
 		      <div id="jstree" role="main">
 		      </div>
 		    </div>

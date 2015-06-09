@@ -19,7 +19,12 @@
 # along with NethServer.  If not, see <http://www.gnu.org/licenses/>.
 #
 INDEX_DIR='/'
-DB_DIR='/var/cache/duc/duc.db'
+DB_DIR='/var/cache/restore'
+DB_FILE=$DB_DIR'/duc.db'
 
+# check if dir exists
+if [ ! -d "$DB_DIR" ]; then
+	/bin/mkdir -p $DB_DIR
+fi
 # directory indexing
-/usr/bin/duc index $INDEX_DIR --database=$DB_DIR
+/usr/bin/duc index $INDEX_DIR --database=$DB_FILE

@@ -1,4 +1,12 @@
 $(function () {
+
+  Date.prototype.yyyymmdd = function() {
+   var yyyy = this.getFullYear().toString();
+   var mm = (this.getMonth()+1).toString();
+   var dd  = this.getDate().toString();
+   return yyyy + (mm[1]?mm:"0"+mm[0]) + (dd[1]?dd:"0"+dd[0]);
+  };
+
   var to = false;
   var destPath = "/tmp/restored";
   var url = window.location.href;
@@ -62,13 +70,15 @@ $(function () {
     var selectedNode = $('#jstree').jstree(true).get_selected();
     $('#pathRestore').html("");
 
-    if(selectedNode.length == 0)
-      $('#pathRestore').html("Select a folder to restore");
-    else {
-
-       var timeStamp = Date.now().toString();
+    if(selectedNode.length == 0) {
+      $('.par-string').css("color", "#D84A38");
+      $('.par-string').css("font-weight", "bold");
+      $('.par-string').css("margin-left", "-2px");
+    } else {
+      $('.par-string').removeAttr("style");
+      var timeStamp = new Date().yyyymmdd();
        
-       for(var node in selectedNode) {
+      for(var node in selectedNode) {
         var path = $('#jstree').jstree(true).get_path(selectedNode[node]);
         if(path) {
           var finalPath = path.join("/");
@@ -82,18 +92,20 @@ $(function () {
           var posOrig = "/";
 
           if(temp) {
-            var destPathTimed = destPath+"_"+timeStamp;
+            var destPathTimed = finalPath+"/restored_"+timeStamp;
             var posOrig = destPathTimed;
           }
-
-          console.log(posOrig);
 
           $('#loader').show();
           $.get(url+'?position='+posOrig+'&file='+finalPath)
           .done(function(d) {
             if(d == 0) {
               $('#loader').hide();
-              $('#pathRestore').html("Restored in <p class='codeIn'>"+posOrig+"</p>");
+              var message = "Restored in <p class='codeIn'>"+posOrig+"</p>";
+              if(selectedNode.length > 1) {
+                message = "Restored in <p class='codeIn'>DIRECTORIES_PATH/restored_"+timeStamp+"</p>"
+              }
+              $('#pathRestore').html(message);
             }
           });
         }

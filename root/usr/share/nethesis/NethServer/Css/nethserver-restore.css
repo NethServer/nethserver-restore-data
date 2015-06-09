@@ -62,6 +62,9 @@ html, body {
 	margin-bottom: 10px;
 	font-size: 14px;
 }
+.par-string {
+	margin-bottom: 8px;
+}
 
 #wrap {
 	margin: 0 auto;

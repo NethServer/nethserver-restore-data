@@ -37,15 +37,15 @@ class RestoreData extends \Nethgui\Controller\AbstractController
     }
 
     public function prepareView(\Nethgui\View\ViewInterface $view) {
-        $db_dir = "/var/cache/duc/duc.db";
+        $db_file = "/var/cache/restore/duc.db";
         $start_index = "/";
         $tree = array();
+        $root = array( 'text' => $start_index, 'children' => array() );
 
         header('Content-type: application/json; charset: utf-8');
 
         if($this->getRequest()->hasParameter('base')) {
-            $cmd = "/usr/bin/duc xml --min-size=1 --exclude-files --database=$db_dir $start_index";
-            $root = array( 'text' => $start_index, 'children' => array() );
+            $cmd = "/usr/bin/duc xml --min-size=1 --exclude-files --database=$db_file $start_index";
             $xml_string = shell_exec($cmd);
             $xml = simplexml_load_string($xml_string);
             $tree = $this->walk_dir($xml, $root);
@@ -55,8 +55,7 @@ class RestoreData extends \Nethgui\Controller\AbstractController
 
         if($this->getRequest()->hasParameter('start')) {
             $start = $this->getRequest()->getParameter('start');
-            $cmd = "/usr/bin/duc xml --min-size=1 --database=$db_dir $start";
-            $root = array( 'text' => $start, 'children' => array() );
+            $cmd = "/usr/bin/duc xml --min-size=1 --database=$db_file $start";
             $xml_string = shell_exec($cmd);
             $xml = simplexml_load_string($xml_string);
             $tree = $this->walk_dir($xml, $root);
