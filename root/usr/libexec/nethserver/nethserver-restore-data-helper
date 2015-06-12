@@ -18,17 +18,24 @@
 # You should have received a copy of the GNU General Public License
 # along with NethServer.  If not, see <http://www.gnu.org/licenses/>.
 #
-INDEX_DIR='/'
-DB_DIR='/var/cache/restore'
+DEST=$1
+shift
+FILE=$@
 
-DB_FILE=$DB_DIR'/duc.db'
-XML_FILE=$DB_DIR'/duc.xml'
+LASTDIR=`basename $FILE`
+BASEDIR=`dirname $FILE`
 
-# check if dir exists
-if [ ! -d "$DB_DIR" ]; then
-	/bin/mkdir -p $DB_DIR
+TIMESTAMP=`date --rfc-3339=date`
+
+if [ "$DEST" == "/" ]; then
+    /sbin/e-smith/restore-file / $FILE
+else
+	/sbin/e-smith/restore-file "/tmp/restored_${TIMESTAMP}" $FILE
+	for F in $FILE ; do
+		if [ "$(ls -A /tmp/restored_${TIMESTAMP}${F})" ]; then
+			/bin/mv "/tmp/restored_${TIMESTAMP}${F}" "${F}_${TIMESTAMP}"
+	    	echo "${F}_${TIMESTAMP}"
+		fi
+	done
+	/bin/rm -rf "/tmp/restored_${TIMESTAMP}"
 fi
-# directory indexing
-/usr/bin/duc index $INDEX_DIR --database=$DB_FILE
-# xml exporting
-/usr/bin/duc xml --min-size=1 --exclude-files --database=$DB_FILE $INDEX_DIR > $XML_FILE

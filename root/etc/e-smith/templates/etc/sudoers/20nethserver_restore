@@ -4,6 +4,7 @@
 	#
 	push @cmnd_alias_httpd_admin, qw(
 	    /sbin/e-smith/restore-file
+	    /usr/libexec/nethserver/nethserver-restore-data-helper
 	);
 	'';
 }

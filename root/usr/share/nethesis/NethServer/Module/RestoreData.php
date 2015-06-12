@@ -38,17 +38,33 @@ class RestoreData extends \Nethgui\Controller\AbstractController
 
     public function prepareView(\Nethgui\View\ViewInterface $view) {
         $db_file = "/var/cache/restore/duc.db";
+        $xml_file = "/var/cache/restore/duc.xml";
         $start_index = "/";
         $tree = array();
         $root = array( 'text' => $start_index, 'children' => array() );
 
         header('Content-type: application/json; charset: utf-8');
+        parent::prepareView($view);
 
         if($this->getRequest()->hasParameter('base')) {
-            $cmd = "/usr/bin/duc xml --min-size=1 --exclude-files --database=$db_file $start_index";
-            $xml_string = shell_exec($cmd);
-            $xml = simplexml_load_string($xml_string);
-            $tree = $this->walk_dir($xml, $root);
+            if(file_exists($xml_file)) {
+                $xml_string = $this->getPhpWrapper()->file_get_contents($xml_file);
+            } else {
+                $xml_string = $this->getPlatform()->exec("/usr/bin/duc xml --min-size=1 --exclude-files --database=$db_file $start_index")->getOutput();
+            }
+
+            $xml_full = simplexml_load_string($xml_string);
+
+            $includePaths = $this->getPlatform()->exec("/bin/cat /etc/backup-data.d/*.include")->getOutput();
+            $includeArrayDirty = explode("\n", $includePaths);
+            $includeArray = $this->cleanArray($includeArrayDirty);
+
+            $excludePaths = $this->getPlatform()->exec("/bin/cat /etc/backup-data.d/*.exclude")->getOutput();
+            $excludeArrayDirty = explode("\n", $excludePaths);
+            $excludeArray = $this->cleanArray($excludeArrayDirty);
+
+            $tree = $this->filter_xml($xml_full, $root, $start_index, $includeArray, $excludeArray);
+
             echo json_encode($tree);
             exit();
         }
@@ -56,33 +72,84 @@ class RestoreData extends \Nethgui\Controller\AbstractController
         if($this->getRequest()->hasParameter('start')) {
             $start = $this->getRequest()->getParameter('start');
             $cmd = "/usr/bin/duc xml --min-size=1 --database=$db_file $start";
-            $xml_string = shell_exec($cmd);
+            $xml_string = $this->getPlatform()->exec($cmd)->getOutput();
             $xml = simplexml_load_string($xml_string);
-            $tree = $this->walk_dir($xml, $root);
+            $tree = $this->walk_dir_clean($xml, $root, $start_index);
             echo json_encode($tree);
             exit();
         }
 
-        if($this->getRequest()->hasParameter('position') && $this->getRequest()->hasParameter('file')) {
+        if($this->getRequest()->hasParameter('position') && $this->getRequest()->hasParameter('dest')) {
             $position = $this->getRequest()->getParameter('position');
-            $file = $this->getRequest()->getParameter('file');
-            $cmd = "/usr/bin/sudo /sbin/e-smith/restore-file $position $file";
-            $result = $this->getPlatform()->exec($cmd)->getExitCode();
+            $file = $this->getRequest()->getParameter('dest');
+            $cmd = "/usr/bin/sudo /usr/libexec/nethserver/nethserver-restore-data-helper $position $file";
+            $result = $this->getPlatform()->exec($cmd)->getOutput();
             echo json_encode($result);
             exit();
         }
-
-        parent::prepareView($view);
     }
 
-    private function walk_dir($dir, &$root) {
+    private function filter_xml($dir, &$root, $start, $includeArray, $excludeArray) {
+        
         foreach ($dir->ent as $ent) {
-            $name = (string)$ent['name'];
-            if ( !$ent->count() ) {
-                $root['children'][] = array( 'text' => $name );
+            $name = trim((string)$ent['name']);
+
+            if($start != '/') {
+                $fullpath = $start."/".$name;
             } else {
-                $node = array( 'text' => $name, 'children' => array());
-                $root['children'][] = $this->walk_dir($ent, $node);
+                $fullpath = "/".$name;
+            }
+
+            foreach ($includeArray as $path) {
+
+                if(!empty($path)) {
+
+                    if (strpos(trim($fullpath), trim($path)) === 0 || strpos(trim($path), trim($fullpath)) === 0) {
+                        $res = str_replace($path, "", $fullpath);
+                        
+                        if($res[0] === '/' || empty($res[0])) {
+                            if(!in_array($fullpath, $excludeArray)) {
+                                if ( !$ent->count() ) {
+                                    $root['children'][] = array( 'text' => $name, 'fullpath' => $fullpath );
+                                } else {
+                                    $node = array( 'text' => $name, 'children' => array(), 'fullpath' => $fullpath);
+                                    $root['children'][] = $this->filter_xml($ent, $node, $fullpath, $includeArray, $excludeArray);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return $root;
+    }
+
+    private function cleanArray($arr) {
+        $cleaned = array();
+        foreach ($arr as $k) {
+            if(substr($k, -1) == '/') {
+                $k = substr($k, 0, -1);
+            }
+            $cleaned[] = $k;
+        }
+        return $cleaned;
+    }
+
+    private function walk_dir_clean($dir, &$root, $start) {
+        foreach ($dir->ent as $ent) {
+            $name = trim((string)$ent['name']);
+
+            if($start != '/') {
+                $fullpath = $start."/".$name;
+            } else {
+                $fullpath = "/".$name;
+            }
+
+            if ( !$ent->count() ) {
+                $root['children'][] = array( 'text' => $name, 'fullpath' => $fullpath );
+            } else {
+                $node = array( 'text' => $name, 'children' => array(), 'fullpath' => $fullpath);
+                $root['children'][] = $this->walk_dir_clean($ent, $node, $fullpath);
             }
         }
         return $root;

@@ -4,6 +4,9 @@ $view->includeFile('NethServer/Css/proton/style.css');
 $view->includeFile('NethServer/Css/nethserver-restore.css');
 
 $view->includeFile('NethServer/Js/jstree.min.js');
+
+$resultTarget = $view->getClientEventTarget('result');
+
 $view->includeJavascript('
 $(function () {
 
@@ -72,7 +75,7 @@ $(function () {
 
   });
 
-  $("#restoreButton").click(function() {
+  $(".Button.submit").click(function() {
     var n = $("#jstree").jstree("get_selected", true);
     var selectedNode = $("#jstree").jstree(true).get_selected();
     $("#pathRestore").html("");
@@ -84,7 +87,9 @@ $(function () {
     } else {
       $(".par-string").removeAttr("style");
       var timeStamp = new Date().yyyymmdd();
-       
+
+      var destinationArray = [];
+
       for(var node in selectedNode) {
         var path = $("#jstree").jstree(true).get_path(selectedNode[node]);
         if(path) {
@@ -97,26 +102,32 @@ $(function () {
 
           var temp = $("#tempRadio").is(":checked");
           var posOrig = "/";
+          var mess = posOrig;
 
           if(temp) {
-            var destPathTimed = finalPath+"/restored_"+timeStamp;
-            var posOrig = destPathTimed;
+            var posOrig = "tmp";
+            mess = finalPath+"_"+timeStamp;
           }
 
-          $("#loader").show();
-          $.get(url+"?position="+posOrig+"&file="+finalPath)
-          .done(function(d) {
-            if(d == 0) {
-              $("#loader").hide();
-              var message = "'.$T('RestoreData_restore_message').' <p class=\'codeIn\'>"+posOrig+"</p>";
-              if(selectedNode.length > 1) {
-                message = "'.$T('RestoreData_restore_message').' <p class=\'codeIn\'>DIRECTORIES_PATH/restored_"+timeStamp+"</p>"
-              }
-              $("#pathRestore").html(message);
-            }
-          });
+          destinationArray.push(finalPath);
         }
       }
+
+      $("#loader").show();
+        $.get(url+"?position="+posOrig+"&dest="+destinationArray.join("+"))
+        .done(function(d) {
+          $("#loader").hide();
+          var res = "/";
+          var message = "'.$T('RestoreData_restore_message').' ";
+          if(temp) {
+            if(d != 0 && d != null && d != undefined) {
+              $("#pathRestore").html(message);
+              $("#pathRestore").append("<p class=\'codeIn\'>"+d.trim()+" </p>");
+            }
+          } else {
+            $("#pathRestore").html(message+res);
+          }
+      });
     }
   });
 });
@@ -126,7 +137,8 @@ $modulePath = $view->getSiteUrl();
 $page = '<div id="wrap">
 		    <div id="nav">
 		      <input class="TextInput" type="text" id="jstree_search" value="" placeholder="'.$T('RestoreData_PlaceHolder').'">
-		      <div class="Button submit" id="restoreButton">'.$T('RestoreData_Button').'</div>
+          '.$view->button('RestoreData', $view::BUTTON_SUBMIT).'
+		      <!--<div class="Button submit" id="restoreButton">'.$T('RestoreData_Button').'</div>-->
 		      <img id="loader" src="'.$modulePath.'/css/img/throbber.gif">
 		      <p id="pathRestore"></p>
 		      <div id="modeRestore">

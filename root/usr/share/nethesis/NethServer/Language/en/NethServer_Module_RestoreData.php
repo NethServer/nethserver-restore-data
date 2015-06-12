@@ -1,7 +1,7 @@
 <?php
 
 $L['RestoreData_Title'] = 'Restore Data';
-$L['RestoreData_Button'] = 'Restore';
+$L['RestoreData_label'] = 'Restore';
 $L['RestoreData_PlaceHolder'] = 'Search dir...';
 $L['RestoreData_Folder_Label'] = 'Directory content';
 $L['RestoreData_original'] = 'Restore data in the original path';
