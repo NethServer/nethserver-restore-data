@@ -76,7 +76,7 @@ class RestoreData extends \Nethgui\Controller\AbstractController
             $cmd = "/usr/bin/duc xml --min-size=1 --database=$db_file $start";
             $xml_string = $this->getPlatform()->exec($cmd)->getOutput();
             $xml = simplexml_load_string($xml_string);
-            $tree = $this->walk_dir_clean($xml, $root, $start_index);
+            $tree = $this->walk_dir_clean($xml, $root);
             echo json_encode($tree);
             exit();
         }
@@ -138,21 +138,15 @@ class RestoreData extends \Nethgui\Controller\AbstractController
         return $cleaned;
     }
 
-    private function walk_dir_clean($dir, &$root, $start) {
+    private function walk_dir_clean($dir, &$root) {
         foreach ($dir->ent as $ent) {
             $name = trim((string)$ent['name']);
 
-            if($start != '/') {
-                $fullpath = $start."/".$name;
-            } else {
-                $fullpath = "/".$name;
-            }
-
             if ( !$ent->count() ) {
-                $root['children'][] = array( 'text' => $name, 'fullpath' => $fullpath );
+                $root['children'][] = array( 'text' => $name);
             } else {
-                $node = array( 'text' => $name, 'children' => array(), 'fullpath' => $fullpath);
-                $root['children'][] = $this->walk_dir_clean($ent, $node, $fullpath);
+                $node = array( 'text' => $name, 'children' => array());
+                $root['children'][] = $this->walk_dir_clean($ent, $node);
             }
         }
         return $root;
