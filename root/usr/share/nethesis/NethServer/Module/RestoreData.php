@@ -63,7 +63,9 @@ class RestoreData extends \Nethgui\Controller\AbstractController
             $excludeArrayDirty = explode("\n", $excludePaths);
             $excludeArray = $this->cleanArray($excludeArrayDirty);
 
-            $tree = $this->filter_xml($xml_full, $root, $start_index, $includeArray, $excludeArray);
+            $alreadyIncluded = array();
+
+            $tree = $this->filter_xml($xml_full, $root, $start_index, $includeArray, $excludeArray, $alreadyIncluded);
 
             echo json_encode($tree);
             exit();
@@ -89,7 +91,7 @@ class RestoreData extends \Nethgui\Controller\AbstractController
         }
     }
 
-    private function filter_xml($dir, &$root, $start, $includeArray, $excludeArray) {
+    private function filter_xml($dir, &$root, $start, $includeArray, $excludeArray, $alreadyIncluded) {
         
         foreach ($dir->ent as $ent) {
             $name = trim((string)$ent['name']);
@@ -103,17 +105,18 @@ class RestoreData extends \Nethgui\Controller\AbstractController
             foreach ($includeArray as $path) {
 
                 if(!empty($path)) {
-
                     if (strpos(trim($fullpath), trim($path)) === 0 || strpos(trim($path), trim($fullpath)) === 0) {
                         $res = str_replace($path, "", $fullpath);
-                        
                         if($res[0] === '/' || empty($res[0])) {
                             if(!in_array($fullpath, $excludeArray)) {
-                                if ( !$ent->count() ) {
-                                    $root['children'][] = array( 'text' => $name, 'fullpath' => $fullpath );
-                                } else {
-                                    $node = array( 'text' => $name, 'children' => array(), 'fullpath' => $fullpath);
-                                    $root['children'][] = $this->filter_xml($ent, $node, $fullpath, $includeArray, $excludeArray);
+                                if(!in_array($fullpath, $alreadyIncluded)) {
+                                    $alreadyIncluded[] = $fullpath;
+                                    if ( !$ent->count() ) {
+                                        $root['children'][] = array( 'text' => $name, 'fullpath' => $fullpath );
+                                    } else {
+                                        $node = array( 'text' => $name, 'children' => array(), 'fullpath' => $fullpath);
+                                        $root['children'][] = $this->filter_xml($ent, $node, $fullpath, $includeArray, $excludeArray, $alreadyIncluded);
+                                    }
                                 }
                             }
                         }
