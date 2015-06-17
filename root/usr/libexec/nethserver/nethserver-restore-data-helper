@@ -22,13 +22,11 @@ DEST=$1
 shift
 FILE=$@
 
-LASTDIR=`basename $FILE`
-BASEDIR=`dirname $FILE`
-
 TIMESTAMP=`date --rfc-3339=date`
 
 if [ "$DEST" == "/" ]; then
     /sbin/e-smith/restore-file / $FILE
+    echo "/"
 else
 	/sbin/e-smith/restore-file "/tmp/restored_${TIMESTAMP}" $FILE
 	for F in $FILE ; do

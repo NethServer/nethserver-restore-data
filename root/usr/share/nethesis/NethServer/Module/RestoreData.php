@@ -22,7 +22,7 @@
 namespace NethServer\Module;
 use Nethgui\System\PlatformInterface as Validate;
 
-class RestoreData extends \Nethgui\Controller\AbstractController
+class RestoreData extends \Nethgui\Controller\AbstractController implements \Nethgui\Component\DependencyConsumer
 {
 
     protected function initializeAttributes(\Nethgui\Module\ModuleAttributesInterface $base)
@@ -34,6 +34,20 @@ class RestoreData extends \Nethgui\Controller\AbstractController
     public function initialize()
     {
         parent::initialize();
+        $this->declareParameter('path', Validate::NOTEMPTY);
+        $this->declareParameter('position', Validate::ANYTHING);
+    }
+
+    public function process()
+    {
+
+        parent::process();
+        if($this->getRequest()->isMutation()) {
+
+            $path = $this->parameters['path'];
+            $position = $this->parameters['position'];
+            $this->restore_path = $this->getPlatform()->exec('/usr/bin/sudo /usr/libexec/nethserver/nethserver-restore-data-helper ${@}', array($position, $path))->getOutput();
+        }
     }
 
     public function prepareView(\Nethgui\View\ViewInterface $view) {
@@ -43,8 +57,13 @@ class RestoreData extends \Nethgui\Controller\AbstractController
         $tree = array();
         $root = array( 'text' => $start_index, 'children' => array() );
 
-        header('Content-type: application/json; charset: utf-8');
         parent::prepareView($view);
+
+        if($this->getRequest()->isMutation()) {
+            if(isset($this->restore_path)) {
+                $this->notifications->message($view->translate('RestoreData_restore_message', array($this->restore_path)));
+            }
+        }
 
         if($this->getRequest()->hasParameter('base')) {
             if(file_exists($xml_file)) {
@@ -55,39 +74,40 @@ class RestoreData extends \Nethgui\Controller\AbstractController
 
             $xml_full = simplexml_load_string($xml_string);
 
-            $includePaths = $this->getPlatform()->exec("/bin/cat /etc/backup-data.d/*.include")->getOutput();
-            $includeArrayDirty = explode("\n", $includePaths);
+            foreach (glob("/etc/backup-data.d/*.include") as $filename) {
+                $fileRead = $this->getPhpWrapper()->file_get_contents($filename);
+                $tempArr = explode("\n", $fileRead);
+                foreach ($tempArr as $k) {
+                    $includeArrayDirty[] = $k;
+                }
+            }
+
             $includeArray = $this->cleanArray($includeArrayDirty);
 
-            $excludePaths = $this->getPlatform()->exec("/bin/cat /etc/backup-data.d/*.exclude")->getOutput();
-            $excludeArrayDirty = explode("\n", $excludePaths);
+            foreach (glob("/etc/backup-data.d/*.exclude") as $filename) {
+                $fileRead = $this->getPhpWrapper()->file_get_contents($filename);
+                $tempArr = explode("\n", $fileRead);
+                foreach ($tempArr as $k) {
+                    $excludeArrayDirty[] = $k;
+                }
+            }
+
             $excludeArray = $this->cleanArray($excludeArrayDirty);
 
             $alreadyIncluded = array();
 
             $tree = $this->filter_xml($xml_full, $root, $start_index, $includeArray, $excludeArray, $alreadyIncluded);
 
-            echo json_encode($tree);
-            exit();
-        }
+            $view['result'] = $tree;
 
-        if($this->getRequest()->hasParameter('start')) {
+        } else if($this->getRequest()->hasParameter('start')) {
             $start = $this->getRequest()->getParameter('start');
             $cmd = "/usr/bin/duc xml --min-size=1 --database=$db_file $start";
             $xml_string = $this->getPlatform()->exec($cmd)->getOutput();
             $xml = simplexml_load_string($xml_string);
             $tree = $this->walk_dir_clean($xml, $root);
-            echo json_encode($tree);
-            exit();
-        }
 
-        if($this->getRequest()->hasParameter('position') && $this->getRequest()->hasParameter('dest')) {
-            $position = $this->getRequest()->getParameter('position');
-            $file = $this->getRequest()->getParameter('dest');
-            $cmd = "/usr/bin/sudo /usr/libexec/nethserver/nethserver-restore-data-helper $position $file";
-            $result = $this->getPlatform()->exec($cmd)->getOutput();
-            echo json_encode($result);
-            exit();
+            $view['start'] = $tree;
         }
     }
 
@@ -151,4 +171,16 @@ class RestoreData extends \Nethgui\Controller\AbstractController
         }
         return $root;
     }
+
+    public function setUserNotifications(\Nethgui\Model\UserNotifications $n)
+    {
+        $this->notifications = $n;
+        return $this;
+    }
+
+    public function getDependencySetters()
+    {
+        return array('UserNotifications' => array($this, 'setUserNotifications'));
+    }
+
 }

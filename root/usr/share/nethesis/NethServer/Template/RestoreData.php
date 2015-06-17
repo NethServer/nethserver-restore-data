@@ -6,6 +6,11 @@ $view->includeFile('NethServer/Css/nethserver-restore.css');
 $view->includeFile('NethServer/Js/jstree.min.js');
 
 $resultTarget = $view->getClientEventTarget('result');
+$startTarget = $view->getClientEventTarget('start');
+$pathTarget = $view->getClientEventTarget('path');
+$posTarget = $view->getClientEventTarget('position');
+
+$url = $view->getModuleUrl();
 
 $view->includeJavascript('
 $(function () {
@@ -19,45 +24,58 @@ $(function () {
 
   var to = false;
   var destPath = "/tmp/restored";
-  var url = window.location.href;
+  var url = "'.$url.'";
 
-  $.ajax(url+"?base").done(function(data) {
-      $("#jstree")
-      .jstree({
-        "core" : {
-          "data" : {
-              "url" : function (node) {
-                  return node.id === "#" ? 
-                  url+"?base" : 
-                  url+"?start="+node.id;
-              },
-              "data" : function (node) {
-                  return { "id" : node.text };
-              }
-          },
-          "themes": {
-            "name": "proton",
-            "responsive": true
-          },
-          "check_callback" : true
+  $(".' . $resultTarget . '").on("nethguiupdateview", function(e, viewvalue) {
+    $(this).jstree({
+         "core" : {
+           "data" : viewvalue,
+           "themes": {
+             "name": "proton",
+             "responsive": true
+           },
+           "check_callback" : true
         },
-        "plugins" : [ "search" ],
-      });
+         "plugins" : [ "search" ],
+       });
   });
+  
+  $(".' . $startTarget . '").on("nethguiupdateview", function(e, d) {
+     for (var key in d.children) {
+       var file = d.children[key];
+       $("#files").append("<li>"+file.text+"</li>");
+     }
+  });
+
+  $.Nethgui.Server.ajaxMessage({"url": url + ".json?base"});
 
   $("#jstree")
     .on("changed.jstree", function (e, data) {
+      $("#pathList").html("");
       if(data && data.selected && data.selected.length) {
         $("#files").empty();
-        var path = $("#jstree").jstree(true).get_path(data.selected[0]);
+        var selectedNode = $("#jstree").jstree(true).get_selected();
+        var destinationArray = [];
+
+        for(var node in selectedNode) {
+          var path = $("#jstree").jstree(true).get_path(selectedNode[node]);
+          if(path) {
+            var finalPath = path.join("/");
+            if(finalPath.charAt(0) == "/") {
+              if(finalPath.length !== 1) {
+                finalPath = finalPath.substring(1);
+              }
+            }
+
+            destinationArray.push(finalPath);
+          }
+        }
+        $("#pathList").append("<li/>");
+        $("#pathList").append(destinationArray.join("<li/>"));
+        $("#pathList").append("<li/>");
 
         if(path.length > 1)
-          $.get(url+"?start=" + path.join("/"), function (d) {
-            for (var key in d.children) {
-              var file = d.children[key];
-              $("#files").append("<li>"+file.text+"</li>");
-            }
-          });
+          $.Nethgui.Server.ajaxMessage({"url": url + ".json?start=" + path.join("/")});
       }
     })
     .bind("select_node.jstree", function (e, data) {
@@ -78,7 +96,6 @@ $(function () {
   $(".Button.submit").click(function() {
     var n = $("#jstree").jstree("get_selected", true);
     var selectedNode = $("#jstree").jstree(true).get_selected();
-    $("#pathRestore").html("");
 
     if(selectedNode.length == 0) {
       $(".par-string").css("color", "#D84A38");
@@ -86,7 +103,6 @@ $(function () {
       $(".par-string").css("margin-left", "-2px");
     } else {
       $(".par-string").removeAttr("style");
-      var timeStamp = new Date().yyyymmdd();
 
       var destinationArray = [];
 
@@ -106,28 +122,13 @@ $(function () {
 
           if(temp) {
             var posOrig = "tmp";
-            mess = finalPath+"_"+timeStamp;
           }
 
           destinationArray.push(finalPath);
         }
       }
-
-      $("#loader").show();
-        $.get(url+"?position="+posOrig+"&dest="+destinationArray.join("+"))
-        .done(function(d) {
-          $("#loader").hide();
-          var res = "/";
-          var message = "'.$T('RestoreData_restore_message').' ";
-          if(temp) {
-            if(d != 0 && d != null && d != undefined) {
-              $("#pathRestore").html(message);
-              $("#pathRestore").append("<p class=\'codeIn\'>"+d.trim()+" </p>");
-            }
-          } else {
-            $("#pathRestore").html(message+res);
-          }
-      });
+      $(".' . $pathTarget. '").val(destinationArray.join(" "));
+      $(".' . $posTarget. '").val(posOrig);
     }
   });
 });
@@ -136,19 +137,19 @@ $(function () {
 $modulePath = $view->getSiteUrl();
 $page = '<div id="wrap">
 		    <div id="nav">
-		      <input class="TextInput" type="text" id="jstree_search" value="" placeholder="'.$T('RestoreData_PlaceHolder').'">
+		      <ul class="codeIn" id="pathList"></ul>
           '.$view->button('RestoreData', $view::BUTTON_SUBMIT).'
 		      <!--<div class="Button submit" id="restoreButton">'.$T('RestoreData_Button').'</div>-->
 		      <img id="loader" src="'.$modulePath.'/css/img/throbber.gif">
-		      <p id="pathRestore"></p>
 		      <div id="modeRestore">
 		      	<div><input id="originalRadio" class="restoreInput" type="radio" name="destination" value="original" checked/>'.$T('RestoreData_original').'</div>
 		      	<div><input id="tempRadio" class="restoreInput" type="radio" name="destination" value="temp"/>'.$T('RestoreData_temp').'</div>
 		      </div></div>
-		      '.$view->buttonList($view::BUTTON_HELP).'
+		      <div class="helpContainer">'.$view->buttonList($view::BUTTON_HELP).'</div>
 		    <div id="sidebar">
+          <input class="TextInput" type="text" id="jstree_search" value="" placeholder="'.$T('RestoreData_PlaceHolder').'">
 		      <p class="par-string" >'.$T('RestoreData_String_restore').'</p>
-		      <div id="jstree" role="main">
+		      <div id="jstree" class="'. $resultTarget .'" role="main">
 		      </div>
 		    </div>
 
@@ -156,11 +157,13 @@ $page = '<div id="wrap">
 		      <p class="description-right">'.$T('RestoreData_Folder_Label').'</p>
 
 		      <div id="files_container">
-		        <ul id="files"></ul>
+		        <ul id="files" class="'. $startTarget .'"></ul>
 		      </div>
 		    </div>
 
 		 </div>';
 
 echo $view->header()->setAttribute('template', $T('RestoreData_Title'));
+echo $view->hidden('path');
+echo $view->hidden('position');
 echo $page;

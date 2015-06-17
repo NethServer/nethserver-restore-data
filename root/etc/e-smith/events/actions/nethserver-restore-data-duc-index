@@ -31,4 +31,4 @@ fi
 # directory indexing
 /usr/bin/duc index $INDEX_DIR --database=$DB_FILE
 # xml exporting
-/usr/bin/duc xml --min-size=1 --exclude-files --database=$DB_FILE $INDEX_DIR > $XML_FILE
+/usr/bin/duc xml --min-size=0 --exclude-files --database=$DB_FILE $INDEX_DIR > $XML_FILE

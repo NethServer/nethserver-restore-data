@@ -15,7 +15,7 @@ html, body {
 	margin-left:320px;
 }
 #jstree_search {
-  	margin: 4px;
+	margin-bottom: 14px;
   	padding: 8px;
   	min-width: 330px;
 }
@@ -62,8 +62,21 @@ html, body {
 	margin-bottom: 10px;
 	font-size: 14px;
 }
+.codeIn > li {
+	margin-left: 6px;
+	margin-bottom: 4px;
+}
 .par-string {
 	margin-bottom: 8px;
+}
+.listPath {
+	margin-left: 6px;
+	margin-bottom: 6px;
+}
+.helpContainer {
+	position: absolute;
+	right: 0;
+	top: 125px;
 }
 
 #wrap {
@@ -74,13 +87,14 @@ html, body {
 	width: 100%;
 }
 #nav {
-	top: 55px;
 	background: #FBFBFB;
 	width: 138em;
-	height: 105px;
+	margin-bottom: 18px;
 }
 #main {
-	float: right;
+	position: absolute;
+	right: 0;
+	top: 160px;
 	width: 450px;
 	padding: 15px;
 	font-size: 14px;
@@ -88,7 +102,7 @@ html, body {
 	margin-top: -14px;
 }
 #sidebar {
-	float: left;
+	position: relative;
 	padding: 10px;
 	font-size: 14px;
 	margin-top: -14px;
