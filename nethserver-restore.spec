@@ -1,7 +1,7 @@
 Summary: Restore data from NethServer backup
 Name: nethserver-restore-data
-Version: 1.0.0
-Release: 1
+Version: 0.0.1
+Release: 1%{?dist}
 License: GPL
 URL: %{url_prefix}/%{name} 
 Source0: %{name}-%{version}.tar.gz
