@@ -24,8 +24,9 @@ html, body {
 	display: none;
 }
 #modeRestore{
-	margin-top: 10px;
-	margin-left: 6px;
+	margin-top: -15px;
+	margin-left: 2px;
+	margin-bottom: 28px;
 }
 .restoreInput {
 	margin: 6px;
@@ -56,14 +57,13 @@ html, body {
 	color: #474747;
 }
 .codeIn {
-	display: inline;
 	font-family: monospace;
-	margin-top: 10px;
-	margin-bottom: 10px;
+	margin-top: -12px;
+	margin-bottom: 28px;
 	font-size: 14px;
 }
-.codeIn > li {
-	margin-left: 6px;
+.codeIn > p {
+	margin-left: 18px;
 	margin-bottom: 4px;
 }
 .par-string {
@@ -105,5 +105,5 @@ html, body {
 	position: relative;
 	padding: 10px;
 	font-size: 14px;
-	margin-top: -14px;
+	margin-top: 0px;
 }

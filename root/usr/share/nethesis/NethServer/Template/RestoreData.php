@@ -70,9 +70,12 @@ $(function () {
             destinationArray.push(finalPath);
           }
         }
-        $("#pathList").append("<li/>");
-        $("#pathList").append(destinationArray.join("<li/>"));
-        $("#pathList").append("<li/>");
+        for(it in destinationArray) {
+          $("#pathList").append("<p>"+destinationArray[it]+"</p>");
+        }
+        // $("#pathList").append("<li/>");
+        // $("#pathList").append(destinationArray.join("<li/>"));
+        // $("#pathList").append("<li/>");
 
         if(path.length > 1)
           $.Nethgui.Server.ajaxMessage({"url": url + ".json?start=" + path.join("/")});
@@ -136,19 +139,22 @@ $(function () {
 
 $modulePath = $view->getSiteUrl();
 $page = '<div id="wrap">
+        '.$view->fieldset()->setAttribute('template', $T('RestoreData_file_restore')).'
 		    <div id="nav">
-		      <ul class="codeIn" id="pathList"></ul>
-          '.$view->button('RestoreData', $view::BUTTON_SUBMIT).'
-		      <!--<div class="Button submit" id="restoreButton">'.$T('RestoreData_Button').'</div>-->
-		      <img id="loader" src="'.$modulePath.'/css/img/throbber.gif">
+		      <div class="codeIn" id="pathList">
+          <p>'.$T('RestoreData_empty_restore').'</p>
+          </div>
+          '.$view->fieldset()->setAttribute('template', $T('RestoreData_mode_restore')).'
 		      <div id="modeRestore">
 		      	<div><input id="originalRadio" class="restoreInput" type="radio" name="destination" value="original" checked/>'.$T('RestoreData_original').'</div>
 		      	<div><input id="tempRadio" class="restoreInput" type="radio" name="destination" value="temp"/>'.$T('RestoreData_temp').'</div>
-		      </div></div>
+		      </div>
+          '.$view->button('RestoreData', $view::BUTTON_SUBMIT).'
+        </div>
 		      <div class="helpContainer">'.$view->buttonList($view::BUTTON_HELP).'</div>
 		    <div id="sidebar">
+          <p class="par-string" >'.$T('RestoreData_String_restore').'</p>
           <input class="TextInput" type="text" id="jstree_search" value="" placeholder="'.$T('RestoreData_PlaceHolder').'">
-		      <p class="par-string" >'.$T('RestoreData_String_restore').'</p>
 		      <div id="jstree" class="'. $resultTarget .'" role="main">
 		      </div>
 		    </div>
