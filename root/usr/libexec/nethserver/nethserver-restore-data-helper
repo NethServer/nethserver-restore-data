@@ -20,7 +20,7 @@
 #
 DEST=$1
 shift
-FILE=$@
+FILE=$(echo $@ | sed -e 's/%20/\\ /g')
 
 TIMESTAMP=`date --rfc-3339=date`
 
@@ -28,6 +28,7 @@ if [ "$DEST" == "/" ]; then
     /sbin/e-smith/restore-file / $FILE
     echo "/"
 else
+	#echo "/sbin/e-smith/restore-file /tmp/restored_${TIMESTAMP} $FILE"
 	/sbin/e-smith/restore-file "/tmp/restored_${TIMESTAMP}" $FILE
 	for F in $FILE ; do
 		if [ "$(ls -A /tmp/restored_${TIMESTAMP}${F})" ]; then

@@ -18,6 +18,19 @@
 # You should have received a copy of the GNU General Public License
 # along with NethServer.  If not, see <http://www.gnu.org/licenses/>.
 #
+function contains() {
+    local n=$#
+    local value=${!n}
+    for ((i=1;i < $#;i++)) {
+        if [ "${!i}" == "${value}" ]; then
+            echo "y"
+            return 0
+        fi
+    }
+    echo "n"
+    return 1
+}
+
 INDEX_DIR='/'
 DB_DIR='/var/cache/restore'
 
@@ -28,7 +41,26 @@ XML_FILE=$DB_DIR'/duc.xml'
 if [ ! -d "$DB_DIR" ]; then
 	/bin/mkdir -p $DB_DIR
 fi
-# directory indexing
+# indexing
 /usr/bin/duc index $INDEX_DIR --database=$DB_FILE
-# xml exporting
-/usr/bin/duc xml --min-size=0 --exclude-files --database=$DB_FILE $INDEX_DIR > $XML_FILE
+
+DIR_ARRAY=()
+FIRST_PART="<?xml version='1.0' encoding='UTF-8'?><duc root='/' size='1000'>"
+LAST_PART="</duc>"
+
+echo $FIRST_PART > $XML_FILE
+for inc in $(/bin/cat /etc/backup-data.d/*.include | sort); do
+    BASE_DIRECTORY=$(echo "$inc" | cut -c 2-)
+
+    if [ $(contains "${DIR_ARRAY[@]}" "$BASE_DIRECTORY") == "n" ]; then
+		DIR_ARRAY+=($BASE_DIRECTORY)
+		# xml exporting
+		CONTENT=$(/usr/bin/duc xml --min-size=0 --exclude-files --database=$DB_FILE /$BASE_DIRECTORY | sed -e "1,2d" | sed -e "$ d")
+		TYPE="dir"
+		if [ -f "/$BASE_DIRECTORY" ]; then
+			TYPE="file"
+		fi
+		echo "<ent type='$TYPE' name='$BASE_DIRECTORY' size='1000'>$CONTENT</ent>" >> $XML_FILE
+	fi
+done
+echo $LAST_PART >> $XML_FILE

@@ -25,9 +25,15 @@ use esmith::Build::CreateLinks  qw(:all);
 # actions for pre-backup-data event
 #--------------------------------------------------
 
-$event = "pre-backup-data";
+my $event = "pre-backup-data";
 event_actions($event, 
    'nethserver-restore-data-duc-index' => '20'
 );
 templates2events("/etc/sudoers",  $event);
+
+$event = "backup-restore-duc-index";
+event_actions($event,
+   'nethserver-restore-data-duc-index' => '20'
+);
+
 exit;

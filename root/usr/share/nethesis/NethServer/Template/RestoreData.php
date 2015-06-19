@@ -6,7 +6,6 @@ $view->includeFile('NethServer/Css/nethserver-restore.css');
 $view->includeFile('NethServer/Js/jstree.min.js');
 
 $resultTarget = $view->getClientEventTarget('result');
-$startTarget = $view->getClientEventTarget('start');
 $pathTarget = $view->getClientEventTarget('path');
 $posTarget = $view->getClientEventTarget('position');
 
@@ -27,6 +26,7 @@ $(function () {
   var url = "'.$url.'";
 
   $(".' . $resultTarget . '").on("nethguiupdateview", function(e, viewvalue) {
+    $("#initialLoader").hide();
     $(this).jstree({
          "core" : {
            "data" : viewvalue,
@@ -36,17 +36,16 @@ $(function () {
            },
            "check_callback" : true
         },
-         "plugins" : [ "search" ],
+        "types" : {
+          "file" : {
+            "icon" : "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAVFBMVEX///9RUlP6+vqTlJawsLDr6+unp6fz8/PU1NT5+fnT09Pw8PDx8fHY2Nj19fX4+Pjf39/39/eMjY6GiInm5uaBgYNxcXNoaWl5eXtiY2TMzMyQkJKhiN8hAAAAgElEQVQYlU3OWRKEIAxFURqbFoOMQVHY/z47EafzeSuvKkIMjyDY4CfJdINe2hWS7CVFPzGNUkLj4KL3MUZAxJQ4jC46AgC1csB5vBmeoJmZORwXynxPSnFY1EsP+XfKGSlsOTwWCmuwjVgWNgrFgmb8h14p7BUutRYh7P55KfYP0XwJ1LYb9GcAAAAASUVORK5CYII=",
+            "valid_children": []
+          }
+        },
+        "plugins" : [ "search", "types" ],
        });
   });
   
-  $(".' . $startTarget . '").on("nethguiupdateview", function(e, d) {
-     for (var key in d.children) {
-       var file = d.children[key];
-       $("#files").append("<li>"+file.text+"</li>");
-     }
-  });
-
   $.Nethgui.Server.ajaxMessage({"url": url + ".json?base"});
 
   $("#jstree")
@@ -73,12 +72,6 @@ $(function () {
         for(it in destinationArray) {
           $("#pathList").append("<p>"+destinationArray[it]+"</p>");
         }
-        // $("#pathList").append("<li/>");
-        // $("#pathList").append(destinationArray.join("<li/>"));
-        // $("#pathList").append("<li/>");
-
-        if(path.length > 1)
-          $.Nethgui.Server.ajaxMessage({"url": url + ".json?start=" + path.join("/")});
       }
     })
     .bind("select_node.jstree", function (e, data) {
@@ -127,7 +120,7 @@ $(function () {
             var posOrig = "tmp";
           }
 
-          destinationArray.push(finalPath);
+          destinationArray.push(escape(finalPath));
         }
       }
       $(".' . $pathTarget. '").val(destinationArray.join(" "));
@@ -155,16 +148,17 @@ $page = '<div id="wrap">
 		    <div id="sidebar">
           <p class="par-string" >'.$T('RestoreData_String_restore').'</p>
           <input class="TextInput" type="text" id="jstree_search" value="" placeholder="'.$T('RestoreData_PlaceHolder').'">
+          <img id="initialLoader" src="../../css/img/throbber.gif"></img>
 		      <div id="jstree" class="'. $resultTarget .'" role="main">
 		      </div>
 		    </div>
 
 		    <div id="main">
-		      <p class="description-right">'.$T('RestoreData_Folder_Label').'</p>
+		      <!--<p class="description-right">'.$T('RestoreData_Folder_Label').'</p>-->
 
-		      <div id="files_container">
+		      <!--<div id="files_container">
 		        <ul id="files" class="'. $startTarget .'"></ul>
-		      </div>
+		      </div>-->
 		    </div>
 
 		 </div>';

@@ -21,6 +21,7 @@
 
 namespace NethServer\Module;
 use Nethgui\System\PlatformInterface as Validate;
+ini_set('memory_limit', '-1');
 
 class RestoreData extends \Nethgui\Controller\AbstractController implements \Nethgui\Component\DependencyConsumer
 {
@@ -66,11 +67,10 @@ class RestoreData extends \Nethgui\Controller\AbstractController implements \Net
         }
 
         if($this->getRequest()->hasParameter('base')) {
-            if(file_exists($xml_file)) {
-                $xml_string = $this->getPhpWrapper()->file_get_contents($xml_file);
-            } else {
-                $xml_string = $this->getPlatform()->exec("/usr/bin/duc xml --min-size=1 --exclude-files --database=$db_file $start_index")->getOutput();
+            if(!file_exists($xml_file)) {
+                $this->getPlatform()->signalEvent("backup-restore-duc-index");
             }
+            $xml_string = $this->getPhpWrapper()->file_get_contents($xml_file);
 
             $xml_full = simplexml_load_string($xml_string);
 
@@ -97,22 +97,11 @@ class RestoreData extends \Nethgui\Controller\AbstractController implements \Net
             $alreadyIncluded = array();
 
             $tree = $this->filter_xml($xml_full, $root, $start_index, $includeArray, $excludeArray, $alreadyIncluded);
-
             $view['result'] = $tree;
-
-        } else if($this->getRequest()->hasParameter('start')) {
-            $start = $this->getRequest()->getParameter('start');
-            $cmd = "/usr/bin/duc xml --min-size=1 --database=$db_file $start";
-            $xml_string = $this->getPlatform()->exec($cmd)->getOutput();
-            $xml = simplexml_load_string($xml_string);
-            $tree = $this->walk_dir_clean($xml, $root);
-
-            $view['start'] = $tree;
         }
     }
 
     private function filter_xml($dir, &$root, $start, $includeArray, $excludeArray, $alreadyIncluded) {
-        
         foreach ($dir->ent as $ent) {
             $name = trim((string)$ent['name']);
 
@@ -122,24 +111,14 @@ class RestoreData extends \Nethgui\Controller\AbstractController implements \Net
                 $fullpath = "/".$name;
             }
 
-            foreach ($includeArray as $path) {
-
-                if(!empty($path)) {
-                    if (strpos(trim($fullpath), trim($path)) === 0 || strpos(trim($path), trim($fullpath)) === 0) {
-                        $res = str_replace($path, "", $fullpath);
-                        if($res[0] === '/' || empty($res[0])) {
-                            if(!in_array($fullpath, $excludeArray)) {
-                                if(!in_array($fullpath, $alreadyIncluded)) {
-                                    $alreadyIncluded[] = $fullpath;
-                                    if ( !$ent->count() ) {
-                                        $root['children'][] = array( 'text' => $name, 'fullpath' => $fullpath );
-                                    } else {
-                                        $node = array( 'text' => $name, 'children' => array(), 'fullpath' => $fullpath);
-                                        $root['children'][] = $this->filter_xml($ent, $node, $fullpath, $includeArray, $excludeArray, $alreadyIncluded);
-                                    }
-                                }
-                            }
-                        }
+            if(!in_array($fullpath, $excludeArray)) {
+                if(!in_array($fullpath, $alreadyIncluded)) {
+                    $alreadyIncluded[] = $fullpath;
+                    if ( !$ent->count() ) {
+                        $root['children'][] = array( 'text' => $name, 'type' => trim((string)$ent['type']));
+                    } else {
+                        $node = array( 'text' => $name, 'children' => array() );
+                        $root['children'][] = $this->filter_xml($ent, $node, $fullpath, $includeArray, $excludeArray, $alreadyIncluded);
                     }
                 }
             }
