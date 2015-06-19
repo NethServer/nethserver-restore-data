@@ -80,13 +80,14 @@ $(function () {
     });
 
   $("#jstree_search").keyup(function () {
-    if(to) { clearTimeout(to); }
+    if($("#jstree_search").val().length >= 3) {
+      if(to) { clearTimeout(to); }
 
-    to = setTimeout(function () {
-      var v = $("#jstree_search").val();
-      $("#jstree").jstree(true).search(v);
-    }, 250);
-
+      to = setTimeout(function () {
+        var v = $("#jstree_search").val();
+        $("#jstree").jstree(true).search(v);
+      }, 250);
+    }
   });
 
   $(".Button.submit").click(function() {
