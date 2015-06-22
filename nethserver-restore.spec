@@ -8,6 +8,7 @@ Source0: %{name}-%{version}.tar.gz
 BuildArch: noarch
 
 Requires: nethserver-base, nethserver-backup-data
+Requires: duc
 
 BuildRequires: perl
 BuildRequires: nethserver-devtools 
