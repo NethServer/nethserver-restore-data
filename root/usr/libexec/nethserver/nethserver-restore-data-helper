@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/python
 #
 # Copyright (C) 2012 Nethesis S.r.l.
 # http://www.nethesis.it - support@nethesis.it
@@ -18,23 +18,38 @@
 # You should have received a copy of the GNU General Public License
 # along with NethServer.  If not, see <http://www.gnu.org/licenses/>.
 #
-DEST=$1
-shift
-FILE=$(echo $@ | sed -e 's/%20/\\ /g')
+import json
+import commands
+import subprocess
+import sys
 
-TIMESTAMP=`date --rfc-3339=date`
+dest = sys.argv[1]
+timestamp = commands.getstatusoutput('date --rfc-3339=date')[1]
 
-if [ "$DEST" == "/" ]; then
-    /sbin/e-smith/restore-file / $FILE
-    echo "/"
-else
-	#echo "/sbin/e-smith/restore-file /tmp/restored_${TIMESTAMP} $FILE"
-	/sbin/e-smith/restore-file "/tmp/restored_${TIMESTAMP}" $FILE
-	for F in $FILE ; do
-		if [ "$(ls -A /tmp/restored_${TIMESTAMP}${F})" ]; then
-			/bin/mv "/tmp/restored_${TIMESTAMP}${F}" "${F}_${TIMESTAMP}"
-	    	echo "${F}_${TIMESTAMP}"
-		fi
-	done
-	/bin/rm -rf "/tmp/restored_${TIMESTAMP}"
-fi
+with open('/tmp/TO-restore-file-list', 'r') as data_file:
+    data = json.load(data_file)
+subprocess.call(["/bin/rm", "-rf", "/tmp/TO-restore-file-list"])
+
+args = []
+args.append("/sbin/e-smith/restore-file")
+
+if(dest == "/"):
+    args.append("/")
+else:
+    doMove = True
+    args.append("/tmp/restored_" + str(timestamp))
+
+for it in data:
+    args.append(it)
+
+# exec restore
+subprocess.call(args)
+
+# move dir
+if(doMove):
+    for it in data:
+        subprocess.call(["/bin/mv", "/tmp/restored_" +
+                         str(timestamp) + str(it), str(it) + "_" + str(timestamp)])
+        print str(it) + "_" + str(timestamp)
+
+    subprocess.call(["/bin/rm", "-rf", "/tmp/restored_" + str(timestamp)])

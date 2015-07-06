@@ -46,8 +46,9 @@ class RestoreData extends \Nethgui\Controller\AbstractController implements \Net
         if($this->getRequest()->isMutation()) {
 
             $path = $this->parameters['path'];
+            file_put_contents('/tmp/TO-restore-file-list', $path);
             $position = $this->parameters['position'];
-            $this->restore_path = $this->getPlatform()->exec('/usr/bin/sudo /usr/libexec/nethserver/nethserver-restore-data-helper ${@}', array($position, $path))->getOutput();
+            $this->restore_path = $this->getPlatform()->exec('/usr/bin/sudo /usr/libexec/nethserver/nethserver-restore-data-helper ${@}', array($position))->getOutput();
         }
     }
 

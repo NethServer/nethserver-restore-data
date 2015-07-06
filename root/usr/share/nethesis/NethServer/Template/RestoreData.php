@@ -121,10 +121,10 @@ $(function () {
             var posOrig = "tmp";
           }
 
-          destinationArray.push(escape(finalPath));
+          destinationArray.push((finalPath));
         }
       }
-      $(".' . $pathTarget. '").val(destinationArray.join(" "));
+      $(".' . $pathTarget. '").val(JSON.stringify(destinationArray));
       $(".' . $posTarget. '").val(posOrig);
     }
   });
