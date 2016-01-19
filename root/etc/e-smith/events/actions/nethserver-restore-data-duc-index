@@ -55,7 +55,7 @@ for inc in $(/bin/cat /etc/backup-data.d/*.include | sort); do
     if [ $(contains "${DIR_ARRAY[@]}" "$BASE_DIRECTORY") == "n" ]; then
 		DIR_ARRAY+=($BASE_DIRECTORY)
 		# xml exporting
-		CONTENT=$(/usr/bin/duc xml --min-size=0 --exclude-files --database=$DB_FILE /$BASE_DIRECTORY | sed -e "1,2d" | sed -e "$ d")
+		CONTENT=$(/usr/bin/duc xml --min_size=0 --exclude-files --database=$DB_FILE /$BASE_DIRECTORY | sed -e "1,2d" | sed -e "$ d")
 		TYPE="dir"
 		if [ -f "/$BASE_DIRECTORY" ]; then
 			TYPE="file"
