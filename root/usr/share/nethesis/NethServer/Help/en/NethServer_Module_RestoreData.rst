@@ -4,6 +4,8 @@ Restore Data
 
 Restore data from backup through web interface.
 
+If you whant to recover a file from an older backup, Select backup date from "Backup file" menu.
+
 Choose between two options:
 
 * restore data in the original path, the files are overwritten.
