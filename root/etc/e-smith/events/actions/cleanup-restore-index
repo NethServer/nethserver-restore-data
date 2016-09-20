@@ -28,6 +28,6 @@ fi
 
 COD=$(echo $COD | sed 's/D$//')
 
-/usr/bin/find /var/cache/restore/ -name "duc-*.xml" -ctime 0 -exec /bin/rm {} \;
+/usr/bin/find /var/cache/restore/ -name "duc-*.xml" -ctime $COD -exec /bin/rm {} \;
 
 exit 0
