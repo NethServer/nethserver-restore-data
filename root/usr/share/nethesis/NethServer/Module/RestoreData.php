@@ -86,7 +86,11 @@ class RestoreData extends \Nethgui\Controller\AbstractController implements \Net
 
         if($this->getRequest()->isMutation()) {
             if(isset($this->restore_path)) {
-                $this->notifications->message($view->translate('RestoreData_restore_message', array($this->restore_path)));
+                if ($this->restore_path) {
+                    $this->notifications->message($view->translate('RestoreData_restore_message', array($this->restore_path)));
+                } else {
+                    $this->notifications->message($view->translate('RestoreData_restore_original_message'));
+                }
             }
         }
 
