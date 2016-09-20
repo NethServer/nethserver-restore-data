@@ -37,6 +37,7 @@ class RestoreData extends \Nethgui\Controller\AbstractController implements \Net
         parent::initialize();
         $this->declareParameter('path', Validate::NOTEMPTY);
         $this->declareParameter('position', Validate::ANYTHING);
+        $this->declareParameter('backupFileList', Validate::ANYTHING,array("backupFile","backupFileLabel"));
     }
 
     public function process()
@@ -48,7 +49,13 @@ class RestoreData extends \Nethgui\Controller\AbstractController implements \Net
             $path = $this->parameters['path'];
             file_put_contents('/tmp/TO-restore-file-list', $path);
             $position = $this->parameters['position'];
-            $this->restore_path = $this->getPlatform()->exec('/usr/bin/sudo /usr/libexec/nethserver/nethserver-restore-data-helper ${@}', array($position))->getOutput();
+            if($this->getRequest()->hasParameter('backupFileList'))
+            {
+                $daysold = (int) floor((time()-$this->getRequest()->getParameter('backupFileList'))/86400);
+            } else {
+                $daysold = 0;
+            }
+            $this->restore_path = $this->getPlatform()->exec('/usr/bin/sudo /usr/libexec/nethserver/nethserver-restore-data-helper ${@}', array($position,$daysold))->getOutput();
         }
     }
 
@@ -60,6 +67,22 @@ class RestoreData extends \Nethgui\Controller\AbstractController implements \Net
         $root = array( 'text' => $start_index, 'children' => array() );
 
         parent::prepareView($view);
+        $bflDatasource = array();
+        if ($handle = opendir('/var/cache/restore'))
+        {
+            while (false !== ($entry = readdir($handle))) {
+                if (preg_match('/duc-([0-9]+)\.xml/', $entry,$tmp))
+                {
+                    $bflDatasource[] = array($tmp[1],date('j M Y', $tmp[1]));
+                }
+            }
+            closedir($handle);
+        }
+        rsort($bflDatasource);
+        $view['backupFileListDatasource'] = $bflDatasource;
+        if($this->getRequest()->hasParameter('ts')){
+                $view['backupFileList'] = $this->getRequest()->getParameter('ts');
+        }
 
         if($this->getRequest()->isMutation()) {
             if(isset($this->restore_path)) {
@@ -68,6 +91,9 @@ class RestoreData extends \Nethgui\Controller\AbstractController implements \Net
         }
 
         if($this->getRequest()->hasParameter('base')) {
+            if($this->getRequest()->hasParameter('ts')){
+                $xml_file = '/var/cache/restore/duc-'.$this->getRequest()->getParameter('ts').'.xml';
+            }
             if(!file_exists($xml_file)) {
                 $this->getPlatform()->signalEvent("backup-restore-duc-index");
             }

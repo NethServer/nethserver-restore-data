@@ -34,8 +34,10 @@ function contains() {
 INDEX_DIR='/'
 DB_DIR='/var/cache/restore'
 
+TS=$(date +%s)
 DB_FILE=$DB_DIR'/duc.db'
-XML_FILE=$DB_DIR'/duc.xml'
+XML_FILE=$DB_DIR'/duc-'$TS'.xml'
+XML_LINK=$DB_DIR'/duc.xml'
 
 # check if dir exists
 if [ ! -d "$DB_DIR" ]; then
@@ -64,3 +66,5 @@ for inc in $(/bin/cat /etc/backup-data.d/*.include | sort); do
 	fi
 done
 echo $LAST_PART >> $XML_FILE
+
+/bin/ln -f $XML_FILE $XML_LINK

@@ -27,6 +27,7 @@ $(function () {
 
   $(".' . $resultTarget . '").on("nethguiupdateview", function(e, viewvalue) {
     $("#initialLoader").hide();
+    $.jstree.destroy();
     $(this).jstree({
          "core" : {
            "data" : viewvalue,
@@ -44,40 +45,44 @@ $(function () {
         },
         "plugins" : [ "search", "types" ],
        });
-  });
   
-  $.Nethgui.Server.ajaxMessage({"url": url + ".json?base"});
+    $("#jstree")
+      .on("changed.jstree", function (e, data) {
+        $("#pathList").html("");
+        if(data && data.selected && data.selected.length) {
+          $("#files").empty();
+          var selectedNode = $("#jstree").jstree(true).get_selected();
+          var destinationArray = [];
 
-  $("#jstree")
-    .on("changed.jstree", function (e, data) {
-      $("#pathList").html("");
-      if(data && data.selected && data.selected.length) {
-        $("#files").empty();
-        var selectedNode = $("#jstree").jstree(true).get_selected();
-        var destinationArray = [];
-
-        for(var node in selectedNode) {
-          var path = $("#jstree").jstree(true).get_path(selectedNode[node]);
-          if(path) {
-            var finalPath = path.join("/");
-            if(finalPath.charAt(0) == "/") {
-              if(finalPath.length !== 1) {
-                finalPath = finalPath.substring(1);
+          for(var node in selectedNode) {
+            var path = $("#jstree").jstree(true).get_path(selectedNode[node]);
+            if(path) {
+              var finalPath = path.join("/");
+              if(finalPath.charAt(0) == "/") {
+                if(finalPath.length !== 1) {
+                  finalPath = finalPath.substring(1);
+                }
               }
-            }
 
-            destinationArray.push(finalPath);
+              destinationArray.push(finalPath);
+            }
+          }
+          for(it in destinationArray) {
+            $("#pathList").append("<p>"+destinationArray[it]+"</p>");
           }
         }
-        for(it in destinationArray) {
-          $("#pathList").append("<p>"+destinationArray[it]+"</p>");
-        }
-      }
-    })
-    .bind("select_node.jstree", function (e, data) {
-      if(!data.event.ctrlKey)
-        return data.instance.toggle_node(data.node);
-    });
+      })
+      .bind("select_node.jstree", function (e, data) {
+        if(!data.event.ctrlKey)
+          return data.instance.toggle_node(data.node);
+      });
+  });
+
+  $.Nethgui.Server.ajaxMessage({"url": url + ".json?base"});
+
+  $("#RestoreData_backupFileList").on("change",function (){
+      $.Nethgui.Server.ajaxMessage({"url": url + ".json?base&ts=" + (this).value });
+  });
 
   $("#jstree_search").keyup(function () {
     if($("#jstree_search").val().length >= 3) {
@@ -167,4 +172,7 @@ $page = '<div id="wrap">
 echo $view->header()->setAttribute('template', $T('RestoreData_Title'));
 echo $view->hidden('path');
 echo $view->hidden('position');
+
+echo $view->selector('backupFileList', $view::SELECTOR_DROPDOWN);
+
 echo $page;
