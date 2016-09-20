@@ -26,7 +26,7 @@ if [[ $COD == 'never' ]]; then
     exit 0
 fi
 
-COD=$(echo $COD | sed 's/D$//')
+COD=$(($(echo $COD | sed 's/D$//')-1))
 
 /usr/bin/find /var/cache/restore/ -name "duc-*.xml" -ctime $COD -exec /bin/rm {} \;
 
