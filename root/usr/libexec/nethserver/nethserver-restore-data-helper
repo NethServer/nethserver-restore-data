@@ -24,6 +24,7 @@ import subprocess
 import sys
 
 dest = sys.argv[1]
+days = sys.argv[2]
 timestamp = commands.getstatusoutput('date --rfc-3339=date')[1]
 
 with open('/tmp/TO-restore-file-list', 'r') as data_file:
@@ -32,6 +33,9 @@ subprocess.call(["/bin/rm", "-rf", "/tmp/TO-restore-file-list"])
 
 args = []
 args.append("/sbin/e-smith/restore-file")
+
+if (days > 0):
+   args.append('-t ' + str(days));
 
 if(dest == "/"):
     args.append("/")

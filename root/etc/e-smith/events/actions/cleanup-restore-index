@@ -1,6 +1,7 @@
-#!/usr/bin/perl -w
+#!/bin/bash
+
 #
-# Copyright (C) 2012 Nethesis S.r.l.
+# Copyright (C) 2016 Nethesis S.r.l.
 # http://www.nethesis.it - support@nethesis.it
 # 
 # This script is part of NethServer.
@@ -19,26 +20,14 @@
 # along with NethServer.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-use esmith::Build::CreateLinks  qw(:all);
 
-#--------------------------------------------------
-# actions for pre-backup-data event
-#--------------------------------------------------
+COD=$(/sbin/e-smith/config getprop backup-data CleanupOlderThan) 
+if [[ $COD == 'never' ]]; then
+    exit 0
+fi
 
-my $event = "pre-backup-data";
-event_actions($event, 
-   'nethserver-restore-data-duc-index' => '20'
-);
-templates2events("/etc/sudoers",  $event);
+COD=$(echo $COD | sed 's/D$//')
 
-$event = "backup-restore-duc-index";
-event_actions($event,
-   'nethserver-restore-data-duc-index' => '20'
-);
+/usr/bin/find /var/cache/restore/ -name "duc-*.xml" -ctime 0 -exec /bin/rm {} \;
 
-$event = "post-backup-data";
-event_actions($event,
-   'cleanup-restore-index' => '70'
-);
-
-exit;
+exit 0
