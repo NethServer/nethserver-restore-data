@@ -30,12 +30,6 @@ event_actions($event,
 );
 
 #--------------------------------------------------
-# actions for nethserver-restore-data-update
-#--------------------------------------------------
-$event = "nethserver-restore-data-update"
-templates2events("/etc/sudoers",  $event);
-
-#--------------------------------------------------
 # actions for backup-restore-duc-index
 #--------------------------------------------------
 $event = "backup-restore-duc-index";
