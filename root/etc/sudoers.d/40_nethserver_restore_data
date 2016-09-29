@@ -1,0 +1,5 @@
+#
+# 40_nethserver_restore_data
+#
+%adm ALL=NOPASSWD: /sbin/e-smith/restore-file, \
+    /usr/libexec/nethserver/nethserver-restore-data-helper

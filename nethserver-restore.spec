@@ -3,7 +3,7 @@ Name: nethserver-restore-data
 Version: 1.2.0
 Release: 1%{?dist}
 License: GPL
-URL: %{url_prefix}/%{name} 
+URL: %{url_prefix}/%{name}
 Source0: %{name}-%{version}.tar.gz
 BuildArch: noarch
 
@@ -11,7 +11,7 @@ Requires: nethserver-base, nethserver-backup-data
 Requires: duc
 
 BuildRequires: perl
-BuildRequires: nethserver-devtools 
+BuildRequires: nethserver-devtools
 
 %description
 Simply web interface for restore data from backup
@@ -37,6 +37,7 @@ mkdir -p %{buildroot}/%{_nseventsdir}/%{name}-update
 %files -f %{name}-%{version}-filelist
 %defattr(-,root,root)
 %dir %{_nseventsdir}/%{name}-update
+%config %attr (0440,root,root) %{_sysconfdir}/sudoers.d/40_nethserver_restore_data
 %doc COPYING
 
 
