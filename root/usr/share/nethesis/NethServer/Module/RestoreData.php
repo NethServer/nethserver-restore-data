@@ -37,7 +37,7 @@ class RestoreData extends \Nethgui\Controller\AbstractController implements \Net
         parent::initialize();
         $this->declareParameter('path', Validate::NOTEMPTY);
         $this->declareParameter('position', Validate::ANYTHING);
-        $this->declareParameter('backupFileList', Validate::ANYTHING,array("backupFile","backupFileLabel"));
+        $this->declareParameter('backupFileList', Validate::ANYTHING);
     }
 
     public function process()
@@ -85,8 +85,10 @@ class RestoreData extends \Nethgui\Controller\AbstractController implements \Net
         }
 
         if($this->getRequest()->isMutation()) {
-            if(isset($this->restore_path)) {
+            if(isset($this->restore_path) && $this->restore_path) {
                 $this->notifications->message($view->translate('RestoreData_restore_message', array($this->restore_path)));
+            } else {
+                $this->notifications->message($view->translate('RestoreData_restore_original_message'));
             }
         }
 
