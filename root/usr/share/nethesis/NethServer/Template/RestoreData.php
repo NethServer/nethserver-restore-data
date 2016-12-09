@@ -145,8 +145,8 @@ $page = '<div id="wrap">
           </div>
           '.$view->fieldset()->setAttribute('template', $T('RestoreData_mode_restore')).'
 		      <div id="modeRestore">
-		      	<div><input id="originalRadio" class="restoreInput" type="radio" name="destination" value="original" checked/>'.$T('RestoreData_original').'</div>
-		      	<div><input id="tempRadio" class="restoreInput" type="radio" name="destination" value="temp"/>'.$T('RestoreData_temp').'</div>
+		      	<div><input id="originalRadio" class="restoreInput" type="radio" name="destination" value="original" checked/><label for="originalRadio">'.$T('RestoreData_original').'</label></div>
+		      	<div><input id="tempRadio" class="restoreInput" type="radio" name="destination" value="temp"/><label for="tempRadio">'.$T('RestoreData_temp').'</label></div>
 		      </div>
           '.$view->button('RestoreData', $view::BUTTON_SUBMIT).'
         </div>
