@@ -22,10 +22,19 @@
 use esmith::Build::CreateLinks  qw(:all);
 
 #--------------------------------------------------
+# actions for nethserver-restore-data-update event
+#--------------------------------------------------
+my $event = "nethserver-restore-data-update";
+
+event_actions($event,
+   'nethserver-restore-data-conf' => '20'
+);
+
+#--------------------------------------------------
 # actions for pre-backup-data event
 #--------------------------------------------------
 
-my $event = "pre-backup-data";
+$event = "pre-backup-data";
 event_actions($event, 
    'nethserver-restore-data-duc-index' => '20'
 );
