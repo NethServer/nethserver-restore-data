@@ -1,6 +1,6 @@
 Summary: Restore data from NethServer backup
 Name: nethserver-restore-data
-Version: 1.2.1
+Version: 1.2.3
 Release: 1%{?dist}
 License: GPL
 URL: %{url_prefix}/%{name}
@@ -42,6 +42,10 @@ mkdir -p %{buildroot}/%{_nseventsdir}/%{name}-update
 
 
 %changelog
+* Wed Jan 25 2017 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 1.2.3-1
+- Rename module "Restore files"
+- Minor UI tweaks
+
 * Thu Oct 06 2016 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 1.2.1-1
 - Bad event for expand-template in restore data - Bug NethServer/dev#5118
 
