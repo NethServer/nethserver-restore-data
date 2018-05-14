@@ -26,6 +26,7 @@ import sys
 dest = sys.argv[1]
 days = sys.argv[2]
 timestamp = commands.getstatusoutput('date --rfc-3339=date')[1]
+doMove = False
 
 with open('/tmp/TO-restore-file-list', 'r') as data_file:
     data = json.load(data_file)
