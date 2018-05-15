@@ -57,6 +57,11 @@ $(function () {
           for(var node in selectedNode) {
             var path = $("#jstree").jstree(true).get_path(selectedNode[node]);
             if(path) {
+              // avoid double slahes
+              if (path[1].endsWith("/")) {
+                  path[1] = path[1].substring(0,path[1].length-1);
+              }
+
               var finalPath = path.join("/");
               if(finalPath.charAt(0) == "/") {
                 if(finalPath.length !== 1) {
@@ -111,6 +116,11 @@ $(function () {
       for(var node in selectedNode) {
         var path = $("#jstree").jstree(true).get_path(selectedNode[node]);
         if(path) {
+          // avoid double slahes
+          if (path[1].endsWith("/")) {
+             path[1] = path[1].substring(0,path[1].length-1);
+          }
+
           var finalPath = path.join("/");
           if(finalPath.charAt(0) == "/") {
             if(finalPath.length !== 1) {
