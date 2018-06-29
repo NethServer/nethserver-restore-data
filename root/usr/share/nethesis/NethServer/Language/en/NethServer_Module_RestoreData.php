@@ -14,3 +14,4 @@ $L['RestoreData_file_restore'] = 'Directories or files to restore';
 $L['RestoreData_mode_restore'] = 'Restore mode';
 $L['RestoreData_empty_restore'] = 'No directories or files selected';
 $L['backupFileList_label'] = 'Backup file';
+$L['latest_label'] = 'Latest';

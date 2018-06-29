@@ -49,13 +49,16 @@ class RestoreData extends \Nethgui\Controller\AbstractController implements \Net
             $path = $this->parameters['path'];
             file_put_contents('/tmp/TO-restore-file-list', $path);
             $position = $this->parameters['position'];
-            if($this->getRequest()->hasParameter('backupFileList'))
+            $program = $this->getPlatform()->getDatabase('configuration')->getProp('backup-data', 'Program');
+            if($this->getRequest()->hasParameter('backupFileList') && $program == 'duplicity')
             {
                 $daysold = (int) floor((time()-$this->getRequest()->getParameter('backupFileList'))/86400);
             } else {
                 $daysold = 0;
             }
-            $this->restore_path = $this->getPlatform()->exec('/usr/bin/sudo /usr/libexec/nethserver/nethserver-restore-data-helper ${@}', array($position,$daysold))->getOutput();
+            if ($path) {
+                $this->restore_path = $this->getPlatform()->exec('/usr/bin/sudo /usr/libexec/nethserver/nethserver-restore-data-helper ${@}', array($position,$daysold))->getOutput();
+            }
         }
     }
 
@@ -68,25 +71,29 @@ class RestoreData extends \Nethgui\Controller\AbstractController implements \Net
 
         parent::prepareView($view);
         $bflDatasource = array();
-        if ($handle = opendir('/var/cache/restore'))
-        {
-            while (false !== ($entry = readdir($handle))) {
-                if (preg_match('/duc-([0-9]+)\.xml/', $entry,$tmp))
-                {
-                    $bflDatasource[] = array($tmp[1],date('j M Y', $tmp[1]));
+        $program = $this->getPlatform()->getDatabase('configuration')->getProp('backup-data', 'Program');
+        if ($program == 'duplicity') {
+            if ($handle = opendir('/var/cache/restore'))
+            {
+                while (false !== ($entry = readdir($handle))) {
+                    if (preg_match('/duc-([0-9]+)\.xml/', $entry,$tmp)) {
+                        $bflDatasource[] = array($tmp[1],date('j M Y', $tmp[1]));
+                    }
                 }
+                closedir($handle);
             }
-            closedir($handle);
+            rsort($bflDatasource);
+        } else {
+            $bflDatasource[] = array(1,$view->translate('latest_label'));
         }
-        rsort($bflDatasource);
         $view['backupFileListDatasource'] = $bflDatasource;
         if($this->getRequest()->hasParameter('ts')){
                 $view['backupFileList'] = $this->getRequest()->getParameter('ts');
         }
 
-        if($this->getRequest()->isMutation()) {
+        if($this->getRequest()->isMutation() &&  $this->getRequest()->isValidated()) {
             if(isset($this->restore_path) && $this->restore_path) {
-                $this->notifications->message($view->translate('RestoreData_restore_message', array($this->restore_path)));
+                $this->notifications->message($view->translate('RestoreData_restore_message', array("/".$this->getRequest()->getParameter('position'))));
             } else {
                 $this->notifications->message($view->translate('RestoreData_restore_original_message'));
             }
