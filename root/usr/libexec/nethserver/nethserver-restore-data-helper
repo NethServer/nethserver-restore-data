@@ -35,7 +35,7 @@ subprocess.call(["/bin/rm", "-rf", "/tmp/TO-restore-file-list"])
 args = []
 args.append("/sbin/e-smith/restore-file")
 
-if (days > 0):
+if (int(days) > 0):
    args.append('-t ' + str(days));
 
 if(dest == "/"):
@@ -48,7 +48,10 @@ for it in data:
     args.append(it)
 
 # exec restore
-subprocess.call(args)
+try:
+    subprocess.check_call(args)
+except:
+    sys.exit(1)
 
 # move dir
 if(doMove):
