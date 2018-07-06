@@ -22,6 +22,7 @@ import json
 import commands
 import subprocess
 import sys
+import os
 
 dest = sys.argv[1]
 days = sys.argv[2]
@@ -47,17 +48,20 @@ else:
 for it in data:
     args.append(it)
 
+devnull = open(os.devnull, 'w')
 # exec restore
 try:
-    subprocess.check_call(args)
+    subprocess.call(args, stdout=devnull)
 except:
+    print "ERROR"
     sys.exit(1)
 
 # move dir
 if(doMove):
     for it in data:
-        subprocess.call(["/bin/mv", "/tmp/restored_" +
-                         str(timestamp) + str(it), str(it) + "_" + str(timestamp)])
+        dest =  str(it) + "_" + str(timestamp)
+        subprocess.call(["/bin/rm", "-rf", dest], stderr=devnull)
+        subprocess.call(["/bin/mv", "-f", "/tmp/restored_" + str(timestamp) + str(it), dest], stderr=devnull)
         print str(it) + "_" + str(timestamp)
 
     subprocess.call(["/bin/rm", "-rf", "/tmp/restored_" + str(timestamp)])
