@@ -1,6 +1,6 @@
 Summary: Restore data from NethServer backup
 Name: nethserver-restore-data
-Version: 1.2.4
+Version: 1.2.5
 Release: 1%{?dist}
 License: GPL
 URL: %{url_prefix}/%{name}
@@ -42,6 +42,9 @@ mkdir -p %{buildroot}/%{_nseventsdir}/%{name}-update
 
 
 %changelog
+* Thu Sep 06 2018 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 1.2.5-1
+- Backup-data: multiple schedule and backends - NethServer/dev#5538
+
 * Wed May 16 2018 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 1.2.4-1
 - Restore data: can't restore files from Web UI - Bug NethServer/dev#5494
 
