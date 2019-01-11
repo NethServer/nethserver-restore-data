@@ -21,7 +21,7 @@
 #
 
 
-COD=$(/sbin/e-smith/config getprop backup-data CleanupOlderThan) 
+COD=$(/sbin/e-smith/db backups getprop backup-data CleanupOlderThan)
 if [[ $COD == 'never' ]]; then
     exit 0
 fi
