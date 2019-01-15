@@ -49,7 +49,7 @@ class RestoreData extends \Nethgui\Controller\AbstractController implements \Net
             $path = $this->parameters['path'];
             file_put_contents('/tmp/TO-restore-file-list', $path);
             $position = $this->parameters['position'];
-            $program = $this->getPlatform()->getDatabase('configuration')->getProp('backup-data', 'Program');
+            $program = $this->getPlatform()->getDatabase('backups')->getType('backup-data');
             if($this->getRequest()->hasParameter('backupFileList') && $program == 'duplicity')
             {
                 $daysold = (int) floor((time()-$this->getRequest()->getParameter('backupFileList'))/86400);
@@ -71,7 +71,7 @@ class RestoreData extends \Nethgui\Controller\AbstractController implements \Net
 
         parent::prepareView($view);
         $bflDatasource = array();
-        $program = $this->getPlatform()->getDatabase('configuration')->getProp('backup-data', 'Program');
+        $program = $this->getPlatform()->getDatabase('backups')->getType('backup-data');
         if ($program == 'duplicity') {
             if ($handle = opendir('/var/cache/restore'))
             {
