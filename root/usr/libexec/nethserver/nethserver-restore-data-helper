@@ -35,6 +35,8 @@ subprocess.call(["/bin/rm", "-rf", "/tmp/TO-restore-file-list"])
 
 args = []
 args.append("/sbin/e-smith/restore-file")
+args.append("-b");
+args.append("backup-data");
 
 if (int(days) > 0):
    args.append('-t ' + str(days));
