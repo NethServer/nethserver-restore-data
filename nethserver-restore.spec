@@ -1,6 +1,6 @@
 Summary: Restore data from NethServer backup
 Name: nethserver-restore-data
-Version: 1.2.6
+Version: 1.3.0
 Release: 1%{?dist}
 License: GPL
 URL: %{url_prefix}/%{name}
@@ -42,6 +42,9 @@ mkdir -p %{buildroot}/%{_nseventsdir}/%{name}-update
 
 
 %changelog
+* Wed Jan 30 2019 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 1.3.0-1
+- Remove single backup data - NethServer/dev#5691
+
 * Wed Jan 09 2019 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 1.2.6-1
 - restore-data interface shows failed backups reference - Bug NethServer/dev#5685
 
