@@ -27,6 +27,10 @@ perl createlinks
 rm -rf %{buildroot}
 (cd root; find . -depth -print | cpio -dump %{buildroot})
 mkdir -p %{buildroot}/%{_nseventsdir}/%{name}-update
+install -v -m 644 -D %{name}.json %{buildroot}/usr/share/cockpit/nethserver/applications/%{name}.json
+install -v -m 644 -D ui/public/logo.png %{buildroot}/usr/share/cockpit/%{name}/logo.png
+install -v -m 644 -D ui/public/manifest.json %{buildroot}/usr/share/cockpit/%{name}/manifest.json
+install -v -m 755 -D api/read %{buildroot}/usr/libexec/nethserver/api/%{name}/read
 %{genfilelist} %{buildroot} > %{name}-%{version}-filelist
 
 
