@@ -1,0 +1,45 @@
+#!/usr/bin/python
+
+#
+# Copyright (C) 2019 Nethesis S.r.l.
+# http://www.nethesis.it - nethserver@nethesis.it
+#
+# This script is part of NethServer.
+#
+# NethServer is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License,
+# or any later version.
+#
+# NethServer is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NethServer.  If not, see COPYING.
+#
+import sys
+import json
+
+# read file list from STDIN
+files = sys.stdin.read().split('\n')
+
+# check empty results
+if files[0] == "":
+    print("{}")
+    sys.exit(0)
+
+# check max length of results
+if len(files) > 500:
+    print('{ "error": "too many results", "results": '+ str(len(files)) +' }')
+    sys.exit(1)
+
+# convert file list into dictonary tree
+dict_add = lambda x, y={}: dict_add(x[:-1], y).setdefault(x[-1], {}) if(x) else y
+base_dict = {}
+map(lambda x: dict_add(x, base_dict), [path.split("/") for path in files])
+
+# convert dictonary to json
+tree = json.dumps(base_dict)
+print(tree)

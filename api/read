@@ -24,8 +24,10 @@ use strict;
 use NethServer::ApiTools;
 use JSON;
 
-my $output = {};
+my %backups;
+
 my $input = NethServer::ApiTools::readInput();
+my $output = {};
 
 my $action = $input->{'action'};
 
@@ -34,6 +36,40 @@ if ($action eq 'app-info') {
     $output = {
         'url' => "https://$host:980/en-US/RestoreData",
     };
+} elsif ($action eq 'list-backups') {
+    my $dir = '/var/lib/nethserver/backup/restore';
+    opendir(DIR, $dir) or die $!;
+
+    while (my $file = readdir(DIR)) {
+        # skip . or .. directories
+        if($file eq "." || $file eq "..") { next; }
+
+        # get name and date of backup
+	    my ($backupName, $backupDate) = split /-/, $file;
+
+        # insert additional info
+        $backups{$backupName}{'destination'} = `/sbin/e-smith/db backups getprop $backupName VFSType`;
+        $backups{$backupName}{'engine'} = `/sbin/e-smith/db backups gettype $backupName`;
+        chomp $backups{$backupName}{'destination'};
+        chomp $backups{$backupName}{'engine'};
+
+        if ($backups{$backupName}{'dates'}) {
+            # backup exists add dates
+            push($backups{$backupName}{'dates'}, int($backupDate));
+        } else {
+            # create empty dates
+            my @dates;
+            push(@dates, int($backupDate));
+            $backups{$backupName}{'dates'} = \@dates;
+        }
+    }
+
+    $output = {
+        'backups' => \%backups,
+    };
+    closedir(DIR);
+} else {
+    NethServer::ApiTools::error();
 }
 
 print encode_json($output);
