@@ -24,6 +24,7 @@ import Router from "vue-router";
 import VueToggleButton from "vue-js-toggle-button";
 import DocInfo from "./directives/DocInfo.vue";
 import VueGoodTable from "vue-good-table";
+import LiquorTree from "liquor-tree";
 
 import App from "./App.vue";
 import Dashboard from "./views/Dashboard.vue";
@@ -34,10 +35,13 @@ import About from "./views/About.vue";
 import UtilService from "./services/util";
 Vue.mixin(UtilService);
 
+import "./filters";
+
 Vue.config.productionTip = false;
 Vue.use(VueToggleButton);
 Vue.component("doc-info", DocInfo);
 Vue.use(VueGoodTable);
+Vue.use(LiquorTree);
 
 Vue.use(VueI18n);
 const i18n = new VueI18n();

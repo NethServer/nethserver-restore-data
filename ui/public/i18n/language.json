@@ -1,6 +1,18 @@
 {
   "restore": {
-    "title": "Restore"
+    "title": "Restore",
+    "choose_backup": "Choose backup",
+    "choose_date": "Choose date",
+    "search": "Search",
+    "search_term": "Pattern",
+    "results": "Results",
+    "no_results": "No results",
+    "no_results_text": "Insert a pattern to search and press 'Search'",
+    "warning": "Warning",
+    "too_many_results": "Your search has produced {0} results. Try to reduce the results changing the pattern. (Max results: 500)",
+    "restore_files": "Restore {0} files",
+    "files_restored_ok": "Files restored successfully!",
+    "files_restored_error": "Files not restored."
   },
   "about": {
     "title": "About",

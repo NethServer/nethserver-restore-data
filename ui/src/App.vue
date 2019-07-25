@@ -42,7 +42,7 @@
           v-bind:class="[getCurrentPath('restore') ? 'active' : '', 'list-group-item']"
         >
           <a href="#/restore">
-            <span class="fa fa-ban"></span>
+            <span class="fa fa-refresh"></span>
             <span class="list-group-item-value">{{$t('restore.title')}}</span>
           </a>
         </li>
