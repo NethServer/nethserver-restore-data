@@ -1,8 +1,8 @@
 {
   "id": "nethserver-restore-data",
   "name": "Restore data",
-  "summary": "Restore backup data files with easily interface",
-  "description": "Restore backup data files with easily interface",
+  "summary": "This module provides a way to restore backup data files",
+  "description": "This module provides a way to restore backup data files",
   "url": "",
   "homepage": "https://github.com/NethServer/nethserver-restore-data",
   "provides": ["nethserver-restore-data"],
