@@ -68,6 +68,13 @@ if ($action eq 'app-info') {
         'backups' => \%backups,
     };
     closedir(DIR);
+} elsif ($action eq 'list-logs') {
+    my @logs = `/usr/bin/ls -1 /var/log/backup/`;
+    chomp(@logs);
+
+    $output = {
+        'logs' => \@logs
+    }
 } else {
     NethServer::ApiTools::error();
 }

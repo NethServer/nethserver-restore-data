@@ -23,6 +23,7 @@
 use strict;
 use NethServer::ApiTools;
 use JSON qw(encode_json decode_json);
+use POSIX qw(strftime);
 
 my $input = NethServer::ApiTools::readInput();
 my $output = {};
@@ -41,9 +42,21 @@ if ($action eq 'list-files') {
     my $backup = $input->{'backup'};
     my $date = $input->{'date'};
     my $files = $input->{'files'};
+    my $override = $input->{'override'};
+
+    # check if engine is restic
+    my $type = `/sbin/e-smith/db backups gettype $backup`;
+    chomp($type);
+    if ($type eq 'restic') {
+        my $datestring = strftime "%Y%m%d%H%M%S", localtime($date);
+        my $logfile = "/var/log/backup/backup-$backup-$datestring.log";
+        $date = `/usr/bin/egrep 'snapshot (.*) saved' $logfile | awk '{print $2'}`;
+    }
 
     for my $file (@$files) {
-        print "/sbin/e-smith/restore-file -b $backup -t $date $file\n"
+        my $datestring = strftime "%Y%m%d-%H:%M:%S", localtime;
+        my $filepath = $override ? '/' : "$file-backup-$datestring";
+        `/sbin/e-smith/restore-file -b $backup -t $date $filepath $file`;
     }
 } else {
     NethServer::ApiTools::error();
