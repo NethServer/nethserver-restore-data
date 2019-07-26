@@ -27,7 +27,11 @@
     "filter_label": "Regexp filter"
   },
   "dashboard": {
-    "title": "Dashboard"
+    "title": "Dashboard",
+    "last_run": "Last run",
+    "configured_backups": "Configured backups",
+    "no_backups_found": "No backups found",
+    "no_backups_found_desc": "It seems that you have not configured any backup-data"
   },
   "docs": {
     "more_info_about": "More info about",

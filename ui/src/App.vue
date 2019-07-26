@@ -109,9 +109,15 @@ export default {
 .mg-left-5 {
   margin-left: 5px !important;
 }
+.mg-left-20 {
+  margin-left: 20px !important;
+}
 
 .stats-container {
-  padding: 20px !important;
+  padding-bottom: 0px !important;
+  padding-left: 20px !important;
+  padding-right: 20px !important;
+  padding-top: 20px !important;
   border-width: initial !important;
   border-style: none !important;
   border-color: initial !important;
@@ -130,11 +136,16 @@ export default {
 }
 
 .stats-count {
-  font-size: 26px;
+  font-size: 18px;
   font-weight: 300;
-  margin-right: 10px;
   float: left;
   line-height: 1;
+}
+
+@media only screen and (max-width: 768px) {
+  .stats-count {
+    margin-top: 10px;
+  }
 }
 
 .row-stat {
