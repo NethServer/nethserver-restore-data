@@ -13,7 +13,12 @@
             for="textInput-modal-markup"
           >{{$t('restore.choose_backup')}}</label>
           <div class="col-sm-5">
-            <select :disabled="view.isSearching" class="form-control" v-model="choosedBackup">
+            <select
+              :disabled="view.isSearching"
+              class="form-control"
+              v-model="choosedBackup"
+              @change="updateDate()"
+            >
               <option
                 v-for="(a, ak) in backups"
                 :key="ak"
@@ -68,14 +73,38 @@
       </form>
 
       <h3>{{$t('restore.results')}}</h3>
-      <button
-        v-show="!view.isSearching && treeData.length > 0 && !view.errorResults"
-        @click="restore()"
-        class="btn btn-primary"
+
+      <form
+        v-show="!view.isSearching && treeData.length > 0 && !view.errorResults && selectedFiles.length > 0"
+        class="form-horizontal"
+        v-on:submit.prevent="restore()"
       >
-        <i18n path="restore.restore_files" tag="span">{{ selectedCount }}</i18n>
-      </button>
-      <pre v-show="!view.isSearching && treeData.length > 0 && !view.errorResults">{{selectedFiles.join('\n')}}</pre>
+        <div class="form-group">
+          <label class="col-sm-2 control-label" for="textInput-modal-markup">
+            {{$t('restore.override_restore')}}
+            <doc-info
+              :placement="'top'"
+              :title="$t('restore.override_restore')"
+              :chapter="'override_restore'"
+              :inline="true"
+            ></doc-info>
+          </label>
+          <div class="col-sm-1">
+            <input class="form-control" type="checkbox" v-model="choosedOverride" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="col-sm-2 control-label" for="textInput-modal-markup"></label>
+          <div class="col-sm-2">
+            <button type="submit" class="btn btn-primary">
+              <i18n path="restore.restore_files" tag="span">{{ selectedCount }}</i18n>
+            </button>
+          </div>
+        </div>
+      </form>
+      <pre
+        v-show="!view.isSearching && treeData.length > 0 && !view.errorResults && selectedFiles.length > 0"
+      >{{selectedFiles.join('\n')}}</pre>
       <div v-if="view.isSearching" class="spinner"></div>
       <div
         class="blank-slate-pf"
@@ -126,15 +155,20 @@ export default {
       choosedBackup: "",
       choosedDate: "",
       choosedString: "shoe",
+      choosedOverride: true,
       treeData: [],
       treeOptions: {
-        checkbox: true
+        checkbox: true,
+        paddingLeft: 21
       },
       selectedCount: 0,
       selectedFiles: []
     };
   },
   methods: {
+    updateDate() {
+      this.choosedDate = this.backups[this.choosedBackup].dates[0];
+    },
     getBackups() {
       var context = this;
 
@@ -176,8 +210,11 @@ export default {
           context.view.isSearching = false;
           var results = JSON.parse(success);
 
+          context.treeData = [];
+          context.selectedCount = 0;
+          context.selectedFiles = [];
+
           if (results.error) {
-            context.treeData = [];
             context.$refs.tree.setModel(context.treeData);
 
             context.view.errorResults = true;
@@ -195,10 +232,6 @@ export default {
               ];
               context.$refs.tree.setModel(context.treeData);
               context.selectedCount = context.$refs.tree.selected().length;
-            } else {
-              context.treeData = [];
-              context.selectedCount = 0;
-              context.selectedFiles = [];
             }
           }
         },
@@ -208,6 +241,8 @@ export default {
           context.view.errorResults = true;
 
           context.treeData = [];
+          context.selectedCount = 0;
+          context.selectedFiles = [];
           context.$refs.tree.setModel(context.treeData);
         }
       );
@@ -237,12 +272,8 @@ export default {
           data: { original: original },
           state: {
             expanded: true,
-            checked:
-              i.toLowerCase().includes(context.choosedString.toLowerCase()) &&
-              children.length == 0,
-            selected:
-              i.toLowerCase().includes(context.choosedString.toLowerCase()) &&
-              children.length == 0
+            checked: false,
+            selected: false
           },
           children: children
         };
@@ -297,7 +328,8 @@ export default {
           action: "restore-files",
           files: this.selectedFiles,
           backup: this.choosedBackup,
-          date: this.choosedDate
+          date: this.choosedDate,
+          override: this.choosedOverride
         },
         function(stream) {
           console.info("restore", stream);
@@ -362,9 +394,16 @@ export default {
   height: 10px !important;
   width: 4px !important;
 }
+.tree-content {
+  padding-top: 0px !important;
+  padding-bottom: 0px !important;
+}
+.tree-anchor {
+  padding: 0px 5px !important;
+}
 
 .highlight {
-  background: #358cea !important;
+  background: #ec7a08 !important;
   padding: 2px !important;
   color: white !important;
   border-radius: 2px !important;
