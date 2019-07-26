@@ -14,7 +14,7 @@
           >{{$t('restore.choose_backup')}}</label>
           <div class="col-sm-5">
             <select
-              :disabled="view.isSearching"
+              :disabled="view.isSearching || view.isRestoring"
               class="form-control"
               v-model="choosedBackup"
               @change="updateDate()"
@@ -33,7 +33,11 @@
             for="textInput-modal-markup"
           >{{$t('restore.choose_date')}}</label>
           <div class="col-sm-5">
-            <select :disabled="view.isSearching" class="form-control" v-model="choosedDate">
+            <select
+              :disabled="view.isSearching || view.isRestoring"
+              class="form-control"
+              v-model="choosedDate"
+            >
               <option
                 v-for="(d, dk) in backups[choosedBackup].dates"
                 :key="dk"
@@ -51,7 +55,7 @@
             <div class="search-pf-input-group">
               <label for="search1" class="sr-only">{{$t('restore.search')}}</label>
               <input
-                :disabled="view.isSearching"
+                :disabled="view.isSearching || view.isRestoring"
                 type="search"
                 class="form-control"
                 :placeholder="$t('restore.search')+'...'"
@@ -64,7 +68,7 @@
           <label class="col-sm-2 control-label" for="textInput-modal-markup"></label>
           <div class="col-sm-1">
             <button
-              :disabled="(choosedString.length < 4 || choosedDate.length == 0 ) || view.isSearching"
+              :disabled="(choosedString.length < 4 || choosedDate.length == 0 ) || view.isSearching || view.isRestoring"
               class="btn btn-primary"
               type="submit"
             >{{$t('restore.search')}}</button>
@@ -96,9 +100,12 @@
         <div class="form-group">
           <label class="col-sm-2 control-label" for="textInput-modal-markup"></label>
           <div class="col-sm-2">
-            <button type="submit" class="btn btn-primary">
+            <button :disabled="view.isRestoring" type="submit" class="btn btn-primary">
               <i18n path="restore.restore_files" tag="span">{{ selectedCount }}</i18n>
             </button>
+          </div>
+          <div class="col-sm-1">
+            <div v-if="view.isRestoring" class="spinner"></div>
           </div>
         </div>
       </form>
@@ -148,6 +155,7 @@ export default {
       view: {
         isLoaded: true,
         isSearching: false,
+        isRestoring: false,
         errorResults: false,
         errorResultsCount: 0
       },

@@ -47,10 +47,13 @@ if ($action eq 'list-files') {
     # check if engine is restic
     my $type = `/sbin/e-smith/db backups gettype $backup`;
     chomp($type);
+
+    # if type is restic get snapshot id instead of date
     if ($type eq 'restic') {
-        my $datestring = strftime "%Y%m%d%H%M%S", localtime($date);
+        my $datestring = strftime "%Y%m%d%H%M", localtime($date);
         my $logfile = "/var/log/backup/backup-$backup-$datestring.log";
-        $date = `/usr/bin/egrep 'snapshot (.*) saved' $logfile | awk '{print $2'}`;
+        $date = `/usr/bin/egrep 'snapshot (.*) saved' $logfile | awk '{print \$2'}`;
+        chomp($date);
     }
 
     for my $file (@$files) {
