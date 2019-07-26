@@ -14,7 +14,7 @@
           >{{$t('restore.choose_backup')}}</label>
           <div class="col-sm-5">
             <select
-              :disabled="view.isSearching || view.isRestoring"
+              :disabled="!choosedBackup || view.isSearching || view.isRestoring"
               class="form-control"
               v-model="choosedBackup"
               @change="updateDate()"
@@ -34,12 +34,12 @@
           >{{$t('restore.choose_date')}}</label>
           <div class="col-sm-5">
             <select
-              :disabled="view.isSearching || view.isRestoring"
+              :disabled="!choosedDate || view.isSearching || view.isRestoring"
               class="form-control"
               v-model="choosedDate"
             >
               <option
-                v-for="(d, dk) in backups[choosedBackup].dates"
+                v-for="(d, dk) in backups[choosedBackup] && backups[choosedBackup].dates"
                 :key="dk"
                 :value="d"
               >{{d | dateFormat}}</option>
@@ -160,9 +160,9 @@ export default {
         errorResultsCount: 0
       },
       backups: [],
-      choosedBackup: "",
-      choosedDate: "",
-      choosedString: "shoe",
+      choosedBackup: null,
+      choosedDate: null,
+      choosedString: "",
       choosedOverride: true,
       treeData: [],
       treeOptions: {
