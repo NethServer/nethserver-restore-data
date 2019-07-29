@@ -22,6 +22,7 @@
 
 use strict;
 use NethServer::ApiTools;
+use esmith::ConfigDB;
 use JSON qw(encode_json decode_json);
 use POSIX qw(strftime);
 
@@ -45,8 +46,8 @@ if ($action eq 'list-files') {
     my $override = $input->{'override'};
 
     # check if engine is restic
-    my $type = `/sbin/e-smith/db backups gettype $backup`;
-    chomp($type);
+    my $bdb = esmith::ConfigDB->open_ro('backups');
+    my $type = $bdb->get_prop($backup, 'type');
 
     # if type is restic get snapshot id instead of date
     if ($type eq 'restic') {
@@ -56,10 +57,20 @@ if ($action eq 'list-files') {
         chomp($date);
     }
 
+    # if type is rsync get directory name in this format: YYYY-MM-DD-HHMMSS
+    if ($type eq 'rsync') {
+        my $datestring = strftime "%Y%m%d%H%M", localtime($date);
+        my $logfile = "/var/log/backup/backup-$backup-$datestring.log";
+        $date = `/usr/bin/egrep 'Creating destination \/' $logfile | awk '{print \$4'}`;
+        chomp($date);
+        $date = `/usr/bin/basename $date`;
+        chomp($date);
+    }
+
     for my $file (@$files) {
         my $datestring = strftime "%Y%m%d-%H:%M:%S", localtime;
         my $filepath = $override ? '/' : "$file-backup-$datestring";
-        `/sbin/e-smith/restore-file -b $backup -t $date $filepath $file`;
+        system(('/sbin/e-smith/restore-file', '-b', "$backup", '-t', "$date", "$filepath", "$file"));
     }
 } else {
     NethServer::ApiTools::error();

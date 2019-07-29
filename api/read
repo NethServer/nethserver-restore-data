@@ -22,6 +22,7 @@
 
 use strict;
 use NethServer::ApiTools;
+use esmith::ConfigDB;
 use JSON;
 
 my %backups;
@@ -48,10 +49,9 @@ if ($action eq 'app-info') {
 	    my ($backupName, $backupDate) = split /-/, $file;
 
         # insert additional info
-        $backups{$backupName}{'destination'} = `/sbin/e-smith/db backups getprop $backupName VFSType`;
-        $backups{$backupName}{'engine'} = `/sbin/e-smith/db backups gettype $backupName`;
-        chomp $backups{$backupName}{'destination'};
-        chomp $backups{$backupName}{'engine'};
+        my $bdb = esmith::ConfigDB->open_ro('backups');
+        $backups{$backupName}{'destination'} = $bdb->get_prop($backupName, 'VFSType');
+        $backups{$backupName}{'engine'} = $bdb->get_prop($backupName, 'type');
 
         if ($backups{$backupName}{'dates'}) {
             # backup exists add dates
@@ -69,8 +69,7 @@ if ($action eq 'app-info') {
     };
     closedir(DIR);
 } elsif ($action eq 'list-logs') {
-    my @logs = `/usr/bin/ls -1 /var/log/backup/`;
-    chomp(@logs);
+    my @logs = glob('/var/log/backup/*');
 
     $output = {
         'logs' => \@logs

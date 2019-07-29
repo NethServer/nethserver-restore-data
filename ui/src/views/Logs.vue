@@ -172,7 +172,7 @@ export default {
           lines: this.view.follow ? null : this.view.lines,
           mode: "file",
           filter: this.view.filter,
-          paths: ["/var/log/backup/" + this.view.path]
+          paths: [this.view.path]
         },
         this.view.follow
           ? function(stream) {
