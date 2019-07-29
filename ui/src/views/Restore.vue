@@ -50,7 +50,24 @@
           <label
             class="col-sm-2 control-label"
             for="textInput-modal-markup"
-          >{{$t('restore.search_term')}}</label>
+          >{{$t('restore.choose_mode')}}</label>
+          <div class="col-sm-5">
+            <select
+              :disabled="!choosedMode || view.isSearching || view.isRestoring"
+              class="form-control"
+              v-model="choosedMode"
+            >
+              <option value="file">{{$t('restore.files_directories')}}</option>
+              <option value="mail">{{$t('restore.mails')}}</option>
+              <option value="advanced">{{$t('restore.advanced')}}</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label
+            class="col-sm-2 control-label"
+            for="textInput-modal-markup"
+          >{{$t('restore.'+choosedMode+'_text')}}</label>
           <div class="col-sm-5">
             <div class="search-pf-input-group">
               <label for="search1" class="sr-only">{{$t('restore.search')}}</label>
@@ -58,7 +75,7 @@
                 :disabled="view.isSearching || view.isRestoring"
                 type="search"
                 class="form-control"
-                :placeholder="$t('restore.search')+'...'"
+                :placeholder="$t('restore.'+choosedMode+'_placeholder')+'...'"
                 v-model="choosedString"
               />
             </div>
@@ -76,13 +93,10 @@
         </div>
       </form>
 
-      <h3>{{$t('restore.results')}}</h3>
-
-      <form
-        v-show="!view.isSearching && treeData.length > 0 && !view.errorResults && selectedFiles.length > 0"
-        class="form-horizontal"
-        v-on:submit.prevent="restore()"
-      >
+      <h3>{{$t('restore.selected')}}</h3>
+      <pre v-show="!view.errorResults">{{selectedFiles.length > 0 ? selectedFiles.join('\n') : $t('restore.nothing_selected')}}</pre>
+      <pre v-show="restoredFiles.length > 0">{{restoredFiles}}</pre>
+      <form v-show="!view.errorResults" class="form-horizontal" v-on:submit.prevent="restore()">
         <div class="form-group">
           <label class="col-sm-2 control-label" for="textInput-modal-markup">
             {{$t('restore.override_restore')}}
@@ -109,9 +123,8 @@
           </div>
         </div>
       </form>
-      <pre
-        v-show="!view.isSearching && treeData.length > 0 && !view.errorResults && selectedFiles.length > 0"
-      >{{selectedFiles.join('\n')}}</pre>
+
+      <h3>{{$t('restore.results')}}</h3>
       <div v-if="view.isSearching" class="spinner"></div>
       <div
         class="blank-slate-pf"
@@ -162,15 +175,17 @@ export default {
       backups: [],
       choosedBackup: null,
       choosedDate: null,
+      choosedMode: "file",
       choosedString: "",
-      choosedOverride: true,
+      choosedOverride: false,
       treeData: [],
       treeOptions: {
         checkbox: true,
         paddingLeft: 21
       },
       selectedCount: 0,
-      selectedFiles: []
+      selectedFiles: [],
+      restoredFiles: ""
     };
   },
   methods: {
@@ -205,12 +220,14 @@ export default {
       var context = this;
 
       context.view.isSearching = true;
+      context.restoredFiles = "";
       nethserver.exec(
         ["nethserver-restore-data/execute"],
         {
           action: "list-files",
           string: context.choosedString,
           backup: context.choosedBackup,
+          mode: context.choosedMode,
           date: context.choosedDate
         },
         null,
@@ -330,6 +347,7 @@ export default {
 
       // update values
       context.view.isRestoring = true;
+      context.restoredFiles = "";
       nethserver.exec(
         ["nethserver-restore-data/execute"],
         {
@@ -339,15 +357,24 @@ export default {
           date: this.choosedDate,
           override: this.choosedOverride
         },
-        function(stream) {
-          console.info("restore", stream);
-        },
+        null,
         function(success) {
           context.view.isRestoring = false;
-          console.log("success");
+
+          context.restoredFiles = context.$t("restore.restored_list") + ":\n";
+          var restored = JSON.parse(success);
+          restored.files.map(function(r) {
+            if (!context.choosedOverride) {
+              context.restoredFiles += r.original + " -> " + r.restored + "\n";
+            } else {
+              context.restoredFiles +=
+                r.original + " (" + context.$t("restore.overwritten") + ")\n";
+            }
+          });
         },
         function(error, data) {
           context.view.isRestoring = false;
+          context.restoredFiles = context.$t("restore.error_restored_list");
           console.error(error, data);
         }
       );

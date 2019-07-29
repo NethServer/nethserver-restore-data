@@ -25,6 +25,7 @@ use NethServer::ApiTools;
 use esmith::ConfigDB;
 use JSON qw(encode_json decode_json);
 use POSIX qw(strftime);
+use feature qw(switch);
 
 my $input = NethServer::ApiTools::readInput();
 my $output = {};
@@ -34,9 +35,30 @@ my $action = $input->{'action'};
 if ($action eq 'list-files') {
     my $backup = $input->{'backup'};
     my $date = $input->{'date'};
+    my $mode = $input->{'mode'};
     my $string = $input->{'string'};
 
-    $output = `/usr/bin/zcat /var/lib/nethserver/backup/restore/$backup-$date.gz | /usr/bin/egrep -i \"$string\" | /usr/libexec/nethserver/api/nethserver-restore-data/filenames2json`;
+    # this switch is used to restrict use cases
+    my $cmd = '/usr/bin/grep -i';
+    given ($mode) {
+        # restore a file or directory
+        when ($_ eq 'file') {
+            $cmd .= " -F '$string'";
+        }
+        # restore a mail folder
+        when ($_ eq 'mail') {
+            $cmd .= " -E '^/var/lib/nethserver/vmail/.*$string\$'";
+        }
+        # this mode allow to use arbitrary complex regexp
+        when ($_ eq 'advanced') {
+            $cmd .= " -E '$string'";
+        }
+        default {
+            $cmd .= " -E '$string'";
+        }
+    }
+
+    $output = `/usr/bin/zcat /var/lib/nethserver/backup/restore/$backup-$date.gz | $cmd | /usr/libexec/nethserver/api/nethserver-restore-data/filenames2json`;
     print $output;
 
 } elsif ($action eq 'restore-files') {
@@ -67,11 +89,37 @@ if ($action eq 'list-files') {
         chomp($date);
     }
 
+    my @restored;
     for my $file (@$files) {
-        my $datestring = strftime "%Y%m%d-%H:%M:%S", localtime;
-        my $filepath = $override ? '/' : "$file-backup-$datestring";
+        my $filepath = $override ? '/' : "/tmp";
+
+        # avoid output from command
+        open my $oldout, ">&STDOUT";
+        close STDOUT;
+        open STDOUT, '>', "/dev/null";
         system(('/sbin/e-smith/restore-file', '-b', "$backup", '-t', "$date", "$filepath", "$file"));
+        open STDOUT, '>&', $oldout;
+
+        # if not override, move the restore file in the origina path with restore prefix in name
+        if(!$override) {
+            my $datestring = strftime "%Y%m%d-%H%M%S", localtime;
+            my $fileName = `/usr/bin/basename $file`;
+            chomp($fileName);
+            my $dirName = `/usr/bin/dirname $file`;
+            chomp($dirName);
+            system(('/usr/bin/mv', "/tmp$file", "$dirName/restore-$datestring-$fileName"));
+            system(('/usr/bin/rm -f', "/tmp$file"));
+            push(@restored, {"original" => "$file", "restored" => "$dirName/restore-$datestring-$fileName"});
+        } else {
+            push(@restored, {"original" => "$file", "restored" => "$file"});
+        }
     }
+
+    $output = {
+        'files' => \@restored,
+    };
+
+    print encode_json($output);
 } else {
     NethServer::ApiTools::error();
 }

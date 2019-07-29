@@ -4,7 +4,12 @@
     "choose_backup": "Choose backup",
     "choose_date": "Choose date",
     "search": "Search",
-    "search_term": "Pattern",
+    "advanced_text": "Pattern",
+    "file_text": "File or directory",
+    "mail_text": "Mail folder",
+    "advanced_placeholder": "Insert regexp",
+    "file_placeholder": "Insert file or directory name",
+    "mail_placeholder": "Insert mail folder name",
     "results": "Results",
     "no_results": "No results",
     "no_results_text": "Insert a pattern to search and press 'Search'",
@@ -13,7 +18,16 @@
     "restore_files": "Restore {0} files",
     "files_restored_ok": "Files restored successfully!",
     "files_restored_error": "Files not restored.",
-    "override_restore": "Override restore"
+    "override_restore": "Override restore",
+    "choose_mode": "Choose mode",
+    "files_directories": "Files or directories",
+    "mails": "Mail folders",
+    "advanced": "Advanced",
+    "nothing_selected": "Nothing selected to restore",
+    "selected": "Selected",
+    "overwritten": "Overwritten",
+    "restored_list": "List of restored files",
+    "error_restored_list": "There was an error restoring the files."
   },
   "about": {
     "title": "About",
@@ -35,6 +49,6 @@
   },
   "docs": {
     "more_info_about": "More info about",
-    "override_restore": "If checked the restored files will overwrite the current files.<br>If not checked the restored files will be created in the same path with date include in the name (Es. my-file-20190725-15:05:12)."
+    "override_restore": "If checked the restored files will overwrite the current files.<br>If not checked the restored files will be created in the same path with date include in the name (Es. restore-20190729-153318-myfile)."
   }
 }
