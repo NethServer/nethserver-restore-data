@@ -282,7 +282,7 @@ export default {
         var ik = i.toLowerCase().indexOf(context.choosedString.toLowerCase());
 
         // insert highlight class inthe middle of the word
-        if (ik >= 0 && children.length == 0) {
+        if (ik >= 0) {
           i =
             i.substring(0, ik) +
             "<b class='highlight'>" +

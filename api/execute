@@ -40,26 +40,26 @@ if ($action eq 'list-files') {
     my $string = $input->{'string'};
 
     # this switch is used to restrict use cases
-    my $cmd = '/usr/bin/grep -i';
+    my $cmd = '/usr/bin/grep';
     given ($mode) {
         # restore a file or directory
         when ($_ eq 'file') {
-            $cmd .= " -F '$string'";
+            $cmd .= " -E -v '^/var/lib/nethserver/vmail/' | /usr/bin/grep -i -F '$string'";
         }
         # restore a mail folder
         when ($_ eq 'mail') {
-            $cmd .= " -E '^/var/lib/nethserver/vmail/.*$string\$'";
+            $cmd .= " -i -E '^/var/lib/nethserver/vmail/.*$string\$'";
         }
         # this mode allow to use arbitrary complex regexp
         when ($_ eq 'advanced') {
-            $cmd .= " -E '$string'";
+            $cmd .= " -i -E '$string'";
         }
         default {
-            $cmd .= " -E '$string'";
+            $cmd .= " -i -E '$string'";
         }
     }
 
-    $output = `/usr/bin/zcat /var/lib/nethserver/backup/restore/$backup-$date.gz | $cmd | /usr/libexec/nethserver/api/nethserver-restore-data/filenames2json`;
+    $output = `/usr/bin/zcat /var/lib/nethserver/backup/restore/$backup\@$date.gz | $cmd | /usr/libexec/nethserver/api/nethserver-restore-data/filenames2json`;
     print $output;
 
 } elsif ($action eq 'restore-files') {
