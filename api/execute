@@ -1,0 +1,124 @@
+#!/usr/bin/perl
+
+#
+# Copyright (C) 2019 Nethesis S.r.l.
+# http://www.nethesis.it - nethserver@nethesis.it
+#
+# This script is part of NethServer.
+#
+# NethServer is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License,
+# or any later version.
+#
+# NethServer is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NethServer.  If not, see COPYING.
+#
+
+use strict;
+use NethServer::ApiTools;
+use esmith::ConfigDB;
+use File::Basename;
+use JSON qw(encode_json decode_json);
+use POSIX qw(strftime);
+use feature qw(switch);
+
+my $input = NethServer::ApiTools::readInput();
+my $output = {};
+
+my $action = $input->{'action'};
+
+if ($action eq 'list-files') {
+    my $backup = $input->{'backup'};
+    my $date = $input->{'date'};
+    my $mode = $input->{'mode'};
+    my $string = $input->{'string'};
+
+    # this switch is used to restrict use cases
+    my $cmd = '/usr/bin/grep -i';
+    given ($mode) {
+        # restore a file or directory
+        when ($_ eq 'file') {
+            $cmd .= " -F '$string'";
+        }
+        # restore a mail folder
+        when ($_ eq 'mail') {
+            $cmd .= " -E '^/var/lib/nethserver/vmail/.*$string\$'";
+        }
+        # this mode allow to use arbitrary complex regexp
+        when ($_ eq 'advanced') {
+            $cmd .= " -E '$string'";
+        }
+        default {
+            $cmd .= " -E '$string'";
+        }
+    }
+
+    $output = `/usr/bin/zcat /var/lib/nethserver/backup/restore/$backup-$date.gz | $cmd | /usr/libexec/nethserver/api/nethserver-restore-data/filenames2json`;
+    print $output;
+
+} elsif ($action eq 'restore-files') {
+    my $backup = $input->{'backup'};
+    my $date = $input->{'date'};
+    my $files = $input->{'files'};
+    my $override = $input->{'override'};
+
+    # check if engine is restic
+    my $bdb = esmith::ConfigDB->open_ro('backups');
+    my $type = $bdb->get_prop($backup, 'type');
+
+    # if type is restic get snapshot id instead of date
+    if ($type eq 'restic') {
+        my $datestring = strftime "%Y%m%d%H%M", localtime($date);
+        my $logfile = "/var/log/backup/backup-$backup-$datestring.log";
+        $date = `/usr/bin/egrep 'snapshot (.*) saved' $logfile | awk '{print \$2'}`;
+        chomp($date);
+    }
+
+    # if type is rsync get directory name in this format: YYYY-MM-DD-HHMMSS
+    if ($type eq 'rsync') {
+        my $datestring = strftime "%Y%m%d%H%M", localtime($date);
+        my $logfile = "/var/log/backup/backup-$backup-$datestring.log";
+        $date = `/usr/bin/egrep 'Creating destination \/' $logfile | awk '{print \$4'}`;
+        chomp($date);
+        $date = `/usr/bin/basename $date`;
+        chomp($date);
+    }
+
+    my @restored;
+    for my $file (@$files) {
+        my $filepath = $override ? '/' : "/tmp";
+
+        # avoid output from command
+        open my $oldout, ">&STDOUT";
+        close STDOUT;
+        open STDOUT, '>', "/dev/null";
+        system(('/sbin/e-smith/restore-file', '-b', "$backup", '-t', "$date", "$filepath", "$file"));
+        open STDOUT, '>&', $oldout;
+
+        # if not override, move the restore file in the origina path with restore prefix in name
+        if(!$override) {
+            my $datestring = strftime "%Y%m%d-%H%M%S", localtime;
+            my $fileName = basename($file);
+            my $dirName = dirname($file);
+            rename "/tmp$file", "$dirName/restore-$datestring-$fileName";
+            unlink "/tmp$file";
+            push(@restored, {"original" => "$file", "restored" => "$dirName/restore-$datestring-$fileName"});
+        } else {
+            push(@restored, {"original" => "$file", "restored" => "$file"});
+        }
+    }
+
+    $output = {
+        'files' => \@restored,
+    };
+
+    print encode_json($output);
+} else {
+    NethServer::ApiTools::error();
+}

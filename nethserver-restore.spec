@@ -5,6 +5,7 @@ Release: 1%{?dist}
 License: GPL
 URL: %{url_prefix}/%{name}
 Source0: %{name}-%{version}.tar.gz
+Source1: %{name}.tar.gz
 BuildArch: noarch
 
 Requires: nethserver-base, nethserver-backup-data
@@ -26,11 +27,14 @@ perl createlinks
 %install
 rm -rf %{buildroot}
 (cd root; find . -depth -print | cpio -dump %{buildroot})
-mkdir -p %{buildroot}/%{_nseventsdir}/%{name}-update
-install -v -m 644 -D %{name}.json %{buildroot}/usr/share/cockpit/nethserver/applications/%{name}.json
-install -v -m 644 -D ui/public/logo.png %{buildroot}/usr/share/cockpit/%{name}/logo.png
-install -v -m 644 -D ui/public/manifest.json %{buildroot}/usr/share/cockpit/%{name}/manifest.json
-install -v -m 755 -D api/read %{buildroot}/usr/libexec/nethserver/api/%{name}/read
+
+mkdir -p %{buildroot}/usr/share/cockpit/%{name}/
+mkdir -p %{buildroot}/usr/share/cockpit/nethserver/applications/
+mkdir -p %{buildroot}/usr/libexec/nethserver/api/%{name}/
+tar xvf %{SOURCE1} -C %{buildroot}/usr/share/cockpit/%{name}/
+cp -a %{name}.json %{buildroot}/usr/share/cockpit/nethserver/applications/
+cp -a api/* %{buildroot}/usr/libexec/nethserver/api/%{name}/
+
 %{genfilelist} %{buildroot} > %{name}-%{version}-filelist
 
 
@@ -40,7 +44,6 @@ install -v -m 755 -D api/read %{buildroot}/usr/libexec/nethserver/api/%{name}/re
 
 %files -f %{name}-%{version}-filelist
 %defattr(-,root,root)
-%dir %{_nseventsdir}/%{name}-update
 %config %attr (0440,root,root) %{_sysconfdir}/sudoers.d/40_nethserver_restore_data
 %doc COPYING
 

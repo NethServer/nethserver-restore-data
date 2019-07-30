@@ -1,8 +1,8 @@
 {
   "id": "nethserver-restore-data",
   "name": "Restore data",
-  "summary": "Legacy restore-data Nethgui UI",
-  "description": "Legacy restore-data Nethgui UI",
+  "summary": "This module provides a way to restore backup data files",
+  "description": "This module provides a way to restore backup data files",
   "url": "",
   "homepage": "https://github.com/NethServer/nethserver-restore-data",
   "provides": ["nethserver-restore-data"],
@@ -18,9 +18,5 @@
     "url": "https://github.com/NethServer/nethserver-restore-data",
     "email": "edoardo.spadoni@nethesis.it"
   },
-  "infoapi": {
-    "path": "nethserver-restore-data/read"
-  },
-  "icon": "logo.png",
-  "external": true
+  "icon": "logo.png"
 }

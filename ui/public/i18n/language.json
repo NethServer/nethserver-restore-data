@@ -1,0 +1,54 @@
+{
+  "restore": {
+    "title": "Restore",
+    "choose_backup": "Choose backup",
+    "choose_date": "Choose date",
+    "search": "Search",
+    "advanced_text": "Pattern",
+    "file_text": "File or directory",
+    "mail_text": "Mail folder",
+    "advanced_placeholder": "Insert regexp",
+    "file_placeholder": "Insert file or directory name",
+    "mail_placeholder": "Insert mail folder name",
+    "results": "Results",
+    "no_results": "No results",
+    "no_results_text": "Insert a pattern to search and press 'Search'",
+    "warning": "Warning",
+    "too_many_results": "Your search has produced {0} results. Try to reduce the results changing the pattern. (Max results: 500)",
+    "restore_files": "Restore {0} files",
+    "files_restored_ok": "Files restored successfully!",
+    "files_restored_error": "Files not restored.",
+    "override_restore": "Override restore",
+    "choose_mode": "Choose mode",
+    "files_directories": "Files or directories",
+    "mails": "Mail folders",
+    "advanced": "Advanced",
+    "nothing_selected": "Nothing selected to restore",
+    "selected": "Selected",
+    "overwritten": "Overwritten",
+    "restored_list": "List of restored files",
+    "error_restored_list": "There was an error restoring the files."
+  },
+  "about": {
+    "title": "About",
+    "website": "Web site",
+    "bug_tracker": "Bug tracker"
+  },
+  "logs": {
+    "title": "Logs",
+    "start_follow_button": "Follow",
+    "stop_follow_button": "Stop following",
+    "filter_label": "Regexp filter"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "last_run": "Last run",
+    "configured_backups": "Configured backups",
+    "no_backups_found": "No backups found",
+    "no_backups_found_desc": "It seems that you have not configured any backup-data"
+  },
+  "docs": {
+    "more_info_about": "More info about",
+    "override_restore": "If checked the restored files will overwrite the current files.<br>If not checked the restored files will be created in the same path with date include in the name (Es. restore-20190729-153318-myfile)."
+  }
+}
