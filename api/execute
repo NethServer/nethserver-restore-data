@@ -23,6 +23,7 @@
 use strict;
 use NethServer::ApiTools;
 use esmith::ConfigDB;
+use File::Basename;
 use JSON qw(encode_json decode_json);
 use POSIX qw(strftime);
 use feature qw(switch);
@@ -103,12 +104,10 @@ if ($action eq 'list-files') {
         # if not override, move the restore file in the origina path with restore prefix in name
         if(!$override) {
             my $datestring = strftime "%Y%m%d-%H%M%S", localtime;
-            my $fileName = `/usr/bin/basename $file`;
-            chomp($fileName);
-            my $dirName = `/usr/bin/dirname $file`;
-            chomp($dirName);
-            system(('/usr/bin/mv', "/tmp$file", "$dirName/restore-$datestring-$fileName"));
-            system(('/usr/bin/rm -f', "/tmp$file"));
+            my $fileName = basename($file);
+            my $dirName = dirname($file);
+            rename "/tmp$file", "$dirName/restore-$datestring-$fileName";
+            unlink "/tmp$file";
             push(@restored, {"original" => "$file", "restored" => "$dirName/restore-$datestring-$fileName"});
         } else {
             push(@restored, {"original" => "$file", "restored" => "$file"});

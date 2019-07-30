@@ -41,7 +41,7 @@ if ($action eq 'list-backups') {
         if($file eq "." || $file eq "..") { next; }
 
         # get name and date of backup
-	    my ($backupName, $backupDate) = split /-/, $file;
+        my ($backupName, $backupDate) = split /-/, $file;
 
         # insert additional info
         my $bdb = esmith::ConfigDB->open_ro('backups');
