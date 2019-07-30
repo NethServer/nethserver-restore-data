@@ -32,12 +32,7 @@ my $output = {};
 
 my $action = $input->{'action'};
 
-if ($action eq 'app-info') {
-    my $host = $input->{'location'}->{'hostname'};
-    $output = {
-        'url' => "https://$host:980/en-US/RestoreData",
-    };
-} elsif ($action eq 'list-backups') {
+if ($action eq 'list-backups') {
     my $dir = '/var/lib/nethserver/backup/restore';
     opendir(DIR, $dir) or die $!;
 

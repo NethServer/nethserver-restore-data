@@ -18,8 +18,5 @@
     "url": "https://github.com/NethServer/nethserver-restore-data",
     "email": "edoardo.spadoni@nethesis.it"
   },
-  "infoapi": {
-    "path": "nethserver-restore-data/read"
-  },
   "icon": "logo.png"
 }
