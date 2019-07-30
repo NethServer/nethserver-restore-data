@@ -49,6 +49,7 @@
   },
   "docs": {
     "more_info_about": "More info about",
-    "override_restore": "If checked the restored files will overwrite the current files.<br>If not checked the restored files will be created in the same path with date include in the name (Es. restore-20190729-153318-myfile)."
+    "override_restore": "If checked the restored files will overwrite the current files.<br>If not checked the restored files will be created in the same path with date include in the name (Es. restore-20190729-153318-myfile).",
+    "choose_mode": "<li><b>Files or directories</b>: Search only file and directories</li><li><b>Mail folders</b>: Search only email folders</li><li><b>Advanced</b>: Search everything (supports wildcards)</li>"
   }
 }

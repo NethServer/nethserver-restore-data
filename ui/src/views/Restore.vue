@@ -47,10 +47,15 @@
           </div>
         </div>
         <div class="form-group">
-          <label
-            class="col-sm-2 control-label"
-            for="textInput-modal-markup"
-          >{{$t('restore.choose_mode')}}</label>
+          <label class="col-sm-2 control-label" for="textInput-modal-markup">
+            {{$t('restore.choose_mode')}}
+            <doc-info
+              :placement="'top'"
+              :title="$t('restore.choose_mode')"
+              :chapter="'choose_mode'"
+              :inline="true"
+            ></doc-info>
+          </label>
           <div class="col-sm-5">
             <select
               :disabled="!choosedMode || view.isSearching || view.isRestoring"
