@@ -1,0 +1,71 @@
+#!/bin/bash
+
+#
+# Copyright (C) 2019 Nethesis S.r.l.
+# http://www.nethesis.it - nethserver@nethesis.it
+#
+# This script is part of NethServer.
+#
+# NethServer is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License,
+# or any later version.
+#
+# NethServer is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NethServer.  If not, see COPYING.
+#
+backup=$1
+log=$2 # not used
+exit_code=$3 # not used
+epoch=$4 # not used
+
+# get backup type
+type=$(/sbin/e-smith/db backups gettype ${backup})
+
+# prune old lists for duplicity or restic
+if [ "${type}" = "duplicity" ] || [ "${type}" = "restic" ]; then
+    now=$(/usr/bin/date +%Y-%m-%d)
+    prune=$(/sbin/e-smith/db backups getprop ${backup} CleanupOlderThan | /usr/bin/cut -d 'D' -f1)
+    timestamp_diff=$(/usr/bin/date --date="${now} -${prune} day" +%s)
+
+    # get current files lists
+    for b in $(/usr/bin/find /var/lib/nethserver/backup/restore/${backup}\@*); do
+        backup_timestamp=$(/usr/bin/echo ${b} | /usr/bin/cut -d '@' -f2 | /usr/bin/cut -d '.' -f1)
+
+        # if backup list timestamp is lower than (now-CleanupOlderThan), delete it
+        if [ "${backup_timestamp}" -le "${timestamp_diff}" ]; then
+            /usr/bin/rm -rf ${b}
+        fi
+    done
+fi
+
+# prune old lists for rsync
+if [ "${type}" = "rsync" ]; then
+    # get backup VFSType
+    vfs=$(/sbin/e-smith/db backups getprop ${backup} VFSType)
+
+    # mount rsync directory
+    /etc/e-smith/events/actions/mount-${vfs} fake-event ${backup}
+
+    # get current files lists
+    for b in $(/usr/bin/find /var/lib/nethserver/backup/restore/${backup}\@*); do
+        backup_timestamp=$(/usr/bin/echo ${b} | /usr/bin/cut -d '@' -f2 | /usr/bin/cut -d '.' -f1)
+        backup_rsync_date=$(/usr/bin/date -d @${backup_timestamp} +%Y-%m-%d)
+
+        # list files inside mounted directory
+        results=$(/usr/bin/find /mnt/backup-${backup}/$(/usr/bin/hostname -s)/${backup_rsync_date}* -maxdepth 1 -mindepth 1 2>/dev/null)
+
+        # if $results list is empty, rsync backup is not present, delete it
+        if [ "x${results}" = "x" ]; then
+            /usr/bin/rm -rf ${b}
+        fi
+    done
+
+    # umount rsync directory
+    /etc/e-smith/events/actions/umount-${vfs} fake-event ${backup}
+fi

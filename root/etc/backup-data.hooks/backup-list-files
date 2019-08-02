@@ -24,15 +24,11 @@ log=$2 # not used
 exit_code=$3 # not used
 epoch=$4
 
-type=$(/sbin/e-smith/db backups gettype $backup)
+type=$(/sbin/e-smith/db backups gettype ${backup})
 filter="/usr/bin/tee"
 
-if [ "$type" = "duplicity" ]; then
+if [ "${type}" = "duplicity" ]; then
     filter="/usr/bin/sed -e 's/[0-9]\{8\}T[0-9]\{6\}Z /\//'"
 fi
 
-if [ "$type" = "rsync" ]; then
-    filter="/usr/bin/sed -e 's/[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}-[0-9]\{6\}\///'"
-fi
-
-/sbin/e-smith/backup-data-list -b $backup -f | eval $filter | /usr/bin/gzip -9 > "/var/lib/nethserver/backup/restore/$backup@$epoch.gz"
+/sbin/e-smith/backup-data-list -b ${backup} -f | eval ${filter} | /usr/bin/gzip -9 > "/var/lib/nethserver/backup/restore/${backup}@${epoch}.gz"
