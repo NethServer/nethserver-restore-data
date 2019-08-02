@@ -106,9 +106,9 @@ if ($action eq 'list-files') {
             my $datestring = strftime "%Y%m%d-%H%M%S", localtime;
             my $fileName = basename($file);
             my $dirName = dirname($file);
-            rename "/tmp$file", "$dirName/restore-$datestring-$fileName";
+            rename "/tmp$file", "$dirName/.restore-$datestring-$fileName";
             unlink "/tmp$file";
-            push(@restored, {"original" => "$file", "restored" => "$dirName/restore-$datestring-$fileName"});
+            push(@restored, {"original" => "$file", "restored" => "$dirName/.restore-$datestring-$fileName"});
         } else {
             push(@restored, {"original" => "$file", "restored" => "$file"});
         }
