@@ -43,8 +43,15 @@ XML_LINK=$DB_DIR'/duc.xml'
 if [ ! -d "$DB_DIR" ]; then
 	/bin/mkdir -p $DB_DIR
 fi
-# indexing
-/usr/bin/duc index $INDEX_DIR --database=$DB_FILE
+
+# create backup list to exclude from indexing
+EXCLUDE_PATHS=""
+for b in $(db backups keys); do
+    EXCLUDE_PATHS="$EXCLUDE_PATHS --exclude=backup-${b}"
+done
+
+# indexing (without particular fs and backups)
+/usr/bin/duc index $INDEX_DIR --database=$DB_FILE --fs-exclude=sysfs,proc,devtmpfs,tmpfs ${EXCLUDE_PATHS}
 
 DIR_ARRAY=()
 FIRST_PART="<?xml version='1.0' encoding='UTF-8'?><duc root='/' size='1000'>"
