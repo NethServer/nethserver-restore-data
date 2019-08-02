@@ -48,16 +48,6 @@
         </li>
         <li class="li-empty"></li>
         <li
-          id="logs-item"
-          v-bind:class="[getCurrentPath('logs') ? 'active' : '', 'list-group-item']"
-        >
-          <a href="#/logs">
-            <span class="fa fa-list"></span>
-            <span class="list-group-item-value">{{$t('logs.title')}}</span>
-          </a>
-        </li>
-        <li class="li-empty"></li>
-        <li
           id="about-item"
           v-bind:class="[getCurrentPath('about') ? 'active' : '', 'list-group-item']"
         >

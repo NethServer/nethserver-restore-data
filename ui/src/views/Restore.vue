@@ -101,7 +101,11 @@
       <h3>{{$t('restore.selected')}}</h3>
       <pre v-show="!view.errorResults">{{selectedFiles.length > 0 ? selectedFiles.join('\n') : $t('restore.nothing_selected')}}</pre>
       <pre v-show="restoredFiles.length > 0">{{restoredFiles}}</pre>
-      <form v-show="!view.errorResults" class="form-horizontal" v-on:submit.prevent="restore()">
+      <form
+        v-show="!view.errorResults"
+        class="form-horizontal"
+        v-on:submit.prevent="choosedOverride ? confirmRestore() : restore()"
+      >
         <div class="form-group">
           <label class="col-sm-2 control-label" for="textInput-modal-markup">
             {{$t('restore.override_restore')}}
@@ -119,8 +123,15 @@
         <div class="form-group">
           <label class="col-sm-2 control-label" for="textInput-modal-markup"></label>
           <div class="col-sm-2">
-            <button :disabled="view.isRestoring" type="submit" class="btn btn-primary">
-              <i18n path="restore.restore_files" tag="span">{{ selectedCount }}</i18n>
+            <button
+              :disabled="view.isRestoring || selectedCount == 0"
+              type="submit"
+              :class="['btn', choosedOverride ? 'btn-danger' : 'btn-primary']"
+            >
+              <i18n
+                :path="choosedOverride ? 'restore.overwrite_files' : 'restore.restore_files'"
+                tag="span"
+              >{{ selectedCount }}</i18n>
             </button>
           </div>
           <div class="col-sm-1">
@@ -156,6 +167,36 @@
         @node:checked="selectCount"
         @node:unchecked="selectCount"
       />
+    </div>
+
+    <div class="modal" id="confirmRestore" tabindex="-1" role="dialog" data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">{{$t('restore.override_restore')}}</h4>
+          </div>
+          <form class="form-horizontal" v-on:submit.prevent="restore()">
+            <div class="modal-body">
+              <div class="form-group">
+                <label
+                  class="col-sm-3 control-label"
+                  for="textInput-modal-markup"
+                >{{$t('restore.are_you_sure')}}?</label>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                class="btn btn-default"
+                type="button"
+                data-dismiss="modal"
+              >{{$t('restore.cancel')}}</button>
+              <button class="btn btn-danger" type="submit">
+                <i18n path="restore.overwrite_files" tag="span">{{ selectedCount }}</i18n>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -339,6 +380,9 @@ export default {
       this.selectedCount = restorable.length;
       this.selectedFiles = files;
     },
+    confirmRestore() {
+      $("#confirmRestore").modal("show");
+    },
     restore(files) {
       var context = this;
 
@@ -353,6 +397,7 @@ export default {
       // update values
       context.view.isRestoring = true;
       context.restoredFiles = "";
+      $("#confirmRestore").modal("hide");
       nethserver.exec(
         ["nethserver-restore-data/execute"],
         {
