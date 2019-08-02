@@ -31,6 +31,13 @@ type=$(/sbin/e-smith/db backups gettype ${backup})
 if [ "${type}" = "duplicity" ] || [ "${type}" = "restic" ]; then
     now=$(/usr/bin/date +%Y-%m-%d)
     prune=$(/sbin/e-smith/db backups getprop ${backup} CleanupOlderThan | /usr/bin/cut -d 'D' -f1)
+
+    # exit if prune is never
+    if [[ ${prune} == 'never' ]]; then
+        exit 0
+    fi
+
+    # calculate remain time
     timestamp_diff=$(/usr/bin/date --date="${now} -${prune} day" +%s)
 
     # get current files lists
