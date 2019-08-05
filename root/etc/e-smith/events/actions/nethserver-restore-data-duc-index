@@ -52,7 +52,7 @@ fi
 
 # create backup list to exclude from indexing
 EXCLUDE_PATHS=""
-for b in $(db backups keys); do
+for b in $(/sbin/e-smith/db backups keys); do
     EXCLUDE_PATHS="$EXCLUDE_PATHS --exclude=backup-${b}"
 done
 

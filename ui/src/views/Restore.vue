@@ -38,11 +38,7 @@
               class="form-control"
               v-model="choosedDate"
             >
-              <option
-                v-for="(d, dk) in backups[choosedBackup] && backups[choosedBackup].dates"
-                :key="dk"
-                :value="d"
-              >{{d | dateFormat}}</option>
+              <option v-for="(d, dk) in filterDates" :key="dk" :value="d">{{d | dateFormat}}</option>
             </select>
           </div>
         </div>
@@ -234,6 +230,19 @@ export default {
       restoredFiles: ""
     };
   },
+  computed: {
+    filterDates() {
+      if (this.backups[this.choosedBackup]) {
+        var sorted = this.backups[this.choosedBackup].dates.sort(function(
+          a,
+          b
+        ) {
+          return b - a;
+        });
+        return sorted;
+      }
+    }
+  },
   methods: {
     updateDate() {
       this.choosedDate = this.backups[this.choosedBackup].dates[0];
@@ -255,7 +264,11 @@ export default {
           }
           context.backups = success.backups;
           context.choosedBackup = Object.keys(context.backups)[0];
-          context.choosedDate = context.backups[context.choosedBackup].dates[0];
+          context.choosedDate = context.backups[
+            context.choosedBackup
+          ].dates.sort(function(a, b) {
+            return b - a;
+          })[0];
         },
         function(error) {
           console.error(error);
