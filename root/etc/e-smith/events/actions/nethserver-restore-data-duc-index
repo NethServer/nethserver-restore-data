@@ -39,6 +39,12 @@ DB_FILE=$DB_DIR'/duc.db'
 XML_FILE=$DB_DIR'/duc-'$TS'.xml'
 XML_LINK=$DB_DIR'/duc.xml'
 
+BACKUP_NAME=$2
+# exit if backup name is different from backup-data
+if [ "$BACKUP_NAME" != "backup-data" ]; then
+	exit 0
+fi
+
 # check if dir exists
 if [ ! -d "$DB_DIR" ]; then
 	/bin/mkdir -p $DB_DIR
