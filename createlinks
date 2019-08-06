@@ -42,4 +42,12 @@ event_actions($event,
    'cleanup-restore-index' => '70'
 );
 
+#--------------------------------------------------
+# actions for nethserver-backup-data-save
+#--------------------------------------------------
+$event = "nethserver-backup-data-save";
+event_actions($event,
+   'nethserver-restore-data-clean-list' => '30'
+);
+
 exit;
