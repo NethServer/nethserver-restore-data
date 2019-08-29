@@ -41,7 +41,7 @@ if [ "${type}" = "duplicity" ] || [ "${type}" = "restic" ]; then
     timestamp_diff=$(/usr/bin/date --date="${now} -${prune} day" +%s)
 
     # get current files lists
-    for b in /var/lib/nethserver/backup/restore/${backup}\@*; do
+    for b in $(find /var/lib/nethserver/backup/restore/ -name "${backup}@*"); do
         backup_timestamp=$(/usr/bin/echo ${b} | /usr/bin/cut -d '@' -f2 | /usr/bin/cut -d '.' -f1)
 
         # if backup list timestamp is lower than (now-CleanupOlderThan), delete it
@@ -60,7 +60,7 @@ if [ "${type}" = "rsync" ]; then
     /etc/e-smith/events/actions/mount-${vfs} fake-event ${backup}
 
     # get current files lists
-    for b in /var/lib/nethserver/backup/restore/${backup}\@*; do
+    for b in $(find /var/lib/nethserver/backup/restore/ -name "${backup}@*"); do
         backup_timestamp=$(/usr/bin/echo ${b} | /usr/bin/cut -d '@' -f2 | /usr/bin/cut -d '.' -f1)
         backup_rsync_date=$(/usr/bin/date -d @${backup_timestamp} +%Y-%m-%d)
 
