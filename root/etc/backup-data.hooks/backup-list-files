@@ -21,8 +21,13 @@
 #
 backup=$1
 log=$2 # not used
-exit_code=$3 # not used
+exit_code=$3
 epoch=$4
+
+# check if backup status is success
+if [ $exit_code -gt 0 ]; then
+    exit 0
+fi
 
 type=$(/sbin/e-smith/db backups gettype ${backup})
 filter="/usr/bin/tee"
