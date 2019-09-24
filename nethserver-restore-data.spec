@@ -40,6 +40,7 @@ cp -a api/* %{buildroot}/usr/libexec/nethserver/api/%{name}/
 
 
 %post
+/usr/bin/rm -rf /var/cache/restore/ || exit 0 # cleanup older duc index files
 
 %preun
 
