@@ -4,5 +4,5 @@
 Cmnd_Alias NSAPI_NETHSERVER_RESTORE_DATA = \
     /usr/libexec/nethserver/api/nethserver-restore-data/execute, \
     /usr/libexec/nethserver/api/nethserver-restore-data/read
-￼
+
 Defaults!NSAPI_NETHSERVER_RESTORE_DATA !requiretty
