@@ -2,6 +2,7 @@
 # nsapi_nethserver_restore_data
 #
 Cmnd_Alias NSAPI_NETHSERVER_RESTORE_DATA = \
+    /usr/libexec/nethserver/api/system-backup/read, \
     /usr/libexec/nethserver/api/nethserver-restore-data/execute, \
     /usr/libexec/nethserver/api/nethserver-restore-data/read
 
