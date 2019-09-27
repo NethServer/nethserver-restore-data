@@ -264,7 +264,7 @@ export default {
           }
           context.backups = success.backups;
           context.choosedBackup = Object.keys(context.backups)[0] || context.$i18n.t(
-        "restore.no_available_backups";
+        "restore.no_available_backups");
           context.choosedDate = context.backups[
             context.choosedBackup
           ].dates.sort(function(a, b) {
