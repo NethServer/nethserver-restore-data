@@ -215,7 +215,7 @@ export default {
         errorResultsCount: 0
       },
       backups: [],
-      choosedBackup: null,
+      choosedBackup: "",
       choosedDate: null,
       choosedMode: "file",
       choosedString: "",
