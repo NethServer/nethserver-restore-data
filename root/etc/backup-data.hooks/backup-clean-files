@@ -57,7 +57,9 @@ if [ "${type}" = "rsync" ]; then
     vfs=$(/sbin/e-smith/db backups getprop ${backup} VFSType)
 
     # mount rsync directory
-    /etc/e-smith/events/actions/mount-${vfs} fake-event ${backup}
+    if [ -f "/etc/e-smith/events/actions/mount-${vfs}" ]; then
+        /etc/e-smith/events/actions/mount-${vfs} fake-event ${backup}
+    fi
 
     # get current files lists
     for b in $(find /var/lib/nethserver/backup/restore/ -name "${backup}@*"); do
@@ -74,5 +76,7 @@ if [ "${type}" = "rsync" ]; then
     done
 
     # umount rsync directory
-    /etc/e-smith/events/actions/umount-${vfs} fake-event ${backup}
+    if [ -f "/etc/e-smith/events/actions/mount-${vfs}" ]; then
+        /etc/e-smith/events/actions/umount-${vfs} fake-event ${backup}
+    fi
 fi
