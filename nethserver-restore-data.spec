@@ -1,6 +1,6 @@
 Summary: Restore data from NethServer backup
 Name: nethserver-restore-data
-Version: 2.0.0
+Version: 2.0.1
 Release: 1%{?dist}
 License: GPL
 URL: %{url_prefix}/%{name}
@@ -51,6 +51,9 @@ cp -a api/* %{buildroot}/usr/libexec/nethserver/api/%{name}/
 
 
 %changelog
+* Mon Oct 28 2019 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 2.0.1-1
+- Email noise from backup - Bug Nethserver/dev#5875
+
 * Tue Oct 01 2019 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 2.0.0-1
 - New NethServer 7.7.1908 defaults - NethServer/dev#5831
 - Sudoers based authorizations for Cockpit UI - NethServer/dev#5805
