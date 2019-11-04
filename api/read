@@ -47,6 +47,7 @@ if ($action eq 'list-backups') {
         my $bdb = esmith::ConfigDB->open_ro('backups');
         $backups{$backupName}{'destination'} = $bdb->get_prop($backupName, 'VFSType');
         $backups{$backupName}{'engine'} = $bdb->get_prop($backupName, 'type');
+        $backups{$backupName}{'status'} = $bdb->get_prop($backupName, 'status');
 
         if ($backups{$backupName}{'dates'}) {
             # backup exists add dates

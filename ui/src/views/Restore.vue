@@ -25,6 +25,11 @@
                 :value="ak"
               >{{ak}} | {{a.destination | uppercase}} - {{a.engine}}</option>
             </select>
+            <span v-show="isDisabled" class="help-block help-disabled">
+              <span class="pficon pficon-warning-triangle-o mg-right"></span>
+              {{$t('restore.backup_disabled')}}
+              <a href="/nethserver#/backup" target="_blank">{{$t('restore.enable')}}</a>
+            </span>
           </div>
         </div>
         <div class="form-group">
@@ -34,7 +39,7 @@
           >{{$t('restore.choose_date')}}</label>
           <div class="col-sm-5">
             <select
-              :disabled="!choosedDate || view.isSearching || view.isRestoring"
+              :disabled="!choosedDate || view.isSearching || view.isRestoring || isDisabled"
               class="form-control"
               v-model="choosedDate"
             >
@@ -54,7 +59,7 @@
           </label>
           <div class="col-sm-5">
             <select
-              :disabled="!choosedMode || view.isSearching || view.isRestoring"
+              :disabled="!choosedMode || view.isSearching || view.isRestoring || isDisabled"
               class="form-control"
               v-model="choosedMode"
             >
@@ -73,7 +78,7 @@
             <div class="search-pf-input-group">
               <label for="search1" class="sr-only">{{$t('restore.search')}}</label>
               <input
-                :disabled="view.isSearching || view.isRestoring"
+                :disabled="view.isSearching || view.isRestoring || isDisabled"
                 type="search"
                 class="form-control"
                 :placeholder="$t('restore.'+choosedMode+'_placeholder')+'...'"
@@ -86,7 +91,7 @@
           <label class="col-sm-2 control-label" for="textInput-modal-markup"></label>
           <div class="col-sm-1">
             <button
-              :disabled="(choosedString.length < 4 || choosedDate.length == 0 ) || view.isSearching || view.isRestoring"
+              :disabled="(choosedString.length < 4 || choosedDate.length == 0 ) || view.isSearching || view.isRestoring || isDisabled"
               class="btn btn-primary"
               type="submit"
             >{{$t('restore.search')}}</button>
@@ -113,14 +118,14 @@
             ></doc-info>
           </label>
           <div class="col-sm-1">
-            <input class="form-control" type="checkbox" v-model="choosedOverride" />
+            <input :disabled="isDisabled" class="form-control" type="checkbox" v-model="choosedOverride" />
           </div>
         </div>
         <div class="form-group">
           <label class="col-sm-2 control-label" for="textInput-modal-markup"></label>
           <div class="col-sm-2">
             <button
-              :disabled="view.isRestoring || selectedCount == 0"
+              :disabled="view.isRestoring || selectedCount == 0 || isDisabled"
               type="submit"
               :class="['btn', choosedOverride ? 'btn-danger' : 'btn-primary']"
             >
@@ -227,7 +232,8 @@ export default {
       },
       selectedCount: 0,
       selectedFiles: [],
-      restoredFiles: ""
+      restoredFiles: "",
+      isDisabled: false
     };
   },
   computed: {
@@ -246,6 +252,7 @@ export default {
   methods: {
     updateDate() {
       this.choosedDate = this.backups[this.choosedBackup].dates[0];
+      this.isDisabled = this.backups[this.choosedBackup].status == 'disabled';
     },
     getBackups() {
       var context = this;
@@ -269,6 +276,7 @@ export default {
           ].dates.sort(function(a, b) {
             return b - a;
           })[0];
+          context.isDisabled = context.backups[context.choosedBackup].status == 'disabled';
         },
         function(error) {
           console.error(error);
@@ -509,5 +517,9 @@ export default {
 
 pre {
   margin: 1em 0px !important;
+}
+
+.help-disabled {
+  color: #ec7a08;
 }
 </style>
