@@ -84,7 +84,7 @@ if ($action eq 'list-files') {
     if ($type eq 'rsync') {
         my $datestring = strftime "%Y%m%d%H%M", localtime($date);
         my $logfile = "/var/log/backup/backup-$backup-$datestring.log";
-        $date = `/usr/bin/egrep 'Creating destination \/' $logfile | awk '{print \$4'}`;
+        $date = `/usr/bin/egrep 'Creating destination ' $logfile | awk '{print \$4'}`;
         chomp($date);
         $date = `/usr/bin/basename $date`;
         chomp($date);
