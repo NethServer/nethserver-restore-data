@@ -29,11 +29,4 @@ if [ $exit_code -gt 0 ]; then
     exit 0
 fi
 
-type=$(/sbin/e-smith/db backups gettype ${backup})
-filter="/usr/bin/tee"
-
-if [ "${type}" = "duplicity" ]; then
-    filter="/usr/bin/sed -e 's/[0-9]\{8\}T[0-9]\{6\}Z /\//'"
-fi
-
-/sbin/e-smith/backup-data-list -b ${backup} -f | eval ${filter} | /usr/bin/gzip -9 > "/var/lib/nethserver/backup/restore/${backup}@${epoch}.gz"
+/sbin/e-smith/backup-data-list -b ${backup} -f | /usr/bin/gzip -9 > "/var/lib/nethserver/backup/restore/${backup}@${epoch}.gz"
