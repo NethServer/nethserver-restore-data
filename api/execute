@@ -98,9 +98,12 @@ if ($action eq 'list-files') {
         open my $oldout, ">&STDOUT";
         close STDOUT;
         open STDOUT, '>', "/dev/null";
-        system(('/sbin/e-smith/restore-file', '-b', "$backup", '-t', "$date", "$filepath", "$file"));
+        my $ret = system(('/sbin/e-smith/restore-file', '-b', "$backup", '-t', "$date", "$filepath", "$file"));
         open STDOUT, '>&', $oldout;
 
+        if ($ret != 0) {
+            NethServer::ApiTools::error();
+        }
         # if not override, move the restore file in the origina path with restore prefix in name
         if(!$override) {
             my $datestring = strftime "%Y%m%d-%H%M%S", localtime;
