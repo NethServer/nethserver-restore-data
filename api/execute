@@ -24,6 +24,7 @@ use strict;
 use NethServer::ApiTools;
 use esmith::ConfigDB;
 use File::Basename;
+use File::Copy;
 use JSON qw(encode_json decode_json);
 use POSIX qw(strftime);
 use feature qw(switch);
@@ -90,6 +91,13 @@ if ($action eq 'list-files') {
         chomp($date);
     }
 
+    if ($type eq 'duplicity') {
+        my $datestring = strftime "%Y%m%d%H%M", localtime($date);
+        my $logfile = "/var/log/backup/backup-$backup-$datestring.log";
+        $date = `/usr/bin/egrep 'StartTime ' $logfile | awk '{print \$2'} | sed 's/.\{3\}$//'`;
+        chomp($date);
+    }
+
     my @restored;
     for my $file (@$files) {
         my $filepath = $override ? '/' : "/tmp";
@@ -109,7 +117,7 @@ if ($action eq 'list-files') {
             my $datestring = strftime "%Y%m%d-%H%M%S", localtime;
             my $fileName = basename($file);
             my $dirName = dirname($file);
-            rename "/tmp$file", "$dirName/.restore-$datestring-$fileName";
+            move("/tmp$file", "$dirName/.restore-$datestring-$fileName");
             unlink "/tmp$file";
             push(@restored, {"original" => "$file", "restored" => "$dirName/.restore-$datestring-$fileName"});
         } else {

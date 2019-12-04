@@ -28,7 +28,10 @@
             <span v-show="isDisabled" class="help-block help-disabled">
               <span class="pficon pficon-warning-triangle-o mg-right"></span>
               {{$t('restore.backup_disabled')}}
-              <a href="/nethserver#/backup" target="_blank">{{$t('restore.enable')}}</a>
+              <a
+                href="/nethserver#/backup"
+                target="_blank"
+              >{{$t('restore.enable')}}</a>
             </span>
           </div>
         </div>
@@ -118,7 +121,12 @@
             ></doc-info>
           </label>
           <div class="col-sm-1">
-            <input :disabled="isDisabled" class="form-control" type="checkbox" v-model="choosedOverride" />
+            <input
+              :disabled="isDisabled"
+              class="form-control"
+              type="checkbox"
+              v-model="choosedOverride"
+            />
           </div>
         </div>
         <div class="form-group">
@@ -228,7 +236,8 @@ export default {
       treeData: [],
       treeOptions: {
         checkbox: true,
-        paddingLeft: 21
+        paddingLeft: 21,
+        autoCheckChildren: false
       },
       selectedCount: 0,
       selectedFiles: [],
@@ -252,7 +261,7 @@ export default {
   methods: {
     updateDate() {
       this.choosedDate = this.backups[this.choosedBackup].dates[0];
-      this.isDisabled = this.backups[this.choosedBackup].status == 'disabled';
+      this.isDisabled = this.backups[this.choosedBackup].status == "disabled";
     },
     getBackups() {
       var context = this;
@@ -276,7 +285,8 @@ export default {
           ].dates.sort(function(a, b) {
             return b - a;
           })[0];
-          context.isDisabled = context.backups[context.choosedBackup].status == 'disabled';
+          context.isDisabled =
+            context.backups[context.choosedBackup].status == "disabled";
         },
         function(error) {
           console.error(error);
@@ -376,7 +386,7 @@ export default {
 
       var restorable = [];
       for (var n in nodes) {
-        if (nodes[n].children && nodes[n].children.length == 0) {
+        if (nodes[n].children) {
           restorable.push(nodes[n]);
         }
       }
