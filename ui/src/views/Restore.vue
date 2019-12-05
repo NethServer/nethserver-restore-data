@@ -260,7 +260,12 @@ export default {
   },
   methods: {
     updateDate() {
-      this.choosedDate = this.backups[this.choosedBackup].dates[0];
+      this.choosedDate = this.backups[this.choosedBackup].dates.sort(function(
+        a,
+        b
+      ) {
+        return b - a;
+      })[0];
       this.isDisabled = this.backups[this.choosedBackup].status == "disabled";
     },
     getBackups() {
