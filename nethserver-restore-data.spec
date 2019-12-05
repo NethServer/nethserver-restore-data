@@ -1,6 +1,6 @@
 Summary: Restore data from NethServer backup
 Name: nethserver-restore-data
-Version: 2.0.3
+Version: 2.0.4
 Release: 1%{?dist}
 License: GPL
 URL: %{url_prefix}/%{name}
@@ -51,6 +51,9 @@ cp -a api/* %{buildroot}/usr/libexec/nethserver/api/%{name}/
 
 
 %changelog
+* Thu Dec 05 2019 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 2.0.4-1
+- Restore of a whole directory - Bug Nethserver/dev#5975
+
 * Thu Nov 21 2019 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 2.0.3-1
 - Restore filenames with special characters - Bug NethServer/dev#5913
 
