@@ -33,7 +33,7 @@
         >
           <a href="#/dashboard">
             <span class="fa fa-cube"></span>
-            <span class="list-group-item-value">{{$t('dashboard.title')}}</span>
+            <span class="list-group-item-value">{{$t('dashboard.app')}}</span>
           </a>
         </li>
         <li class="li-empty"></li>
