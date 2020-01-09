@@ -94,7 +94,7 @@ if ($action eq 'list-files') {
     if ($type eq 'duplicity') {
         my $datestring = strftime "%Y%m%d%H%M", localtime($date);
         my $logfile = "/var/log/backup/backup-$backup-$datestring.log";
-        $date = `/usr/bin/egrep 'StartTime ' $logfile | awk '{print \$2'} | sed 's/.\{3\}$//'`;
+        $date = `/usr/bin/egrep 'StartTime ' $logfile | awk '{print \$2}' | cut -d . -f1`;
         chomp($date);
     }
 
