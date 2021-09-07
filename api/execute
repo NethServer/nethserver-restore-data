@@ -45,18 +45,18 @@ if ($action eq 'list-files') {
     given ($mode) {
         # restore a file or directory
         when ($_ eq 'file') {
-            $cmd .= " -E -v '^/var/lib/nethserver/vmail/' | /usr/bin/grep -i -F '$string'";
+            $cmd .= " -E -v '^/var/lib/nethserver/vmail/' | /usr/bin/grep -i -F \"$string\"";
         }
         # restore a mail folder
         when ($_ eq 'mail') {
-            $cmd .= " -i -E '^/var/lib/nethserver/vmail/.*$string\$'";
+            $cmd .= " -i -E \"^/var/lib/nethserver/vmail/.*$string\$\"";
         }
         # this mode allow to use arbitrary complex regexp
         when ($_ eq 'advanced') {
-            $cmd .= " -i -E '$string'";
+            $cmd .= " -i -E \"$string\"";
         }
         default {
-            $cmd .= " -i -E '$string'";
+            $cmd .= " -i -E \"$string\"";
         }
     }
 
