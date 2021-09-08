@@ -1,6 +1,6 @@
 Summary: Restore data from NethServer backup
 Name: nethserver-restore-data
-Version: 2.0.6
+Version: 2.0.7
 Release: 1%{?dist}
 License: GPL
 URL: %{url_prefix}/%{name}
@@ -51,6 +51,9 @@ cp -a api/* %{buildroot}/usr/libexec/nethserver/api/%{name}/
 
 
 %changelog
+* Wed Sep 08 2021 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 2.0.7-1
+- Restore data: unable to restore file if the path contains a single quote - Bug NethServer/dev#6552
+
 * Wed Jan 15 2020 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 2.0.6-1
 - Cockpit: restore-data does not work for old backups - Bug Nethserver/dev#6022
 
